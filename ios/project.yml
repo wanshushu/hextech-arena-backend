@@ -1,0 +1,51 @@
+name: HexTechArena
+options:
+  bundleIdPrefix: com.hextecharena
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  developmentLanguage: zh-Hans
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+
+targets:
+  HexTechArena:
+    type: application
+    platform: iOS
+    sources:
+      - path: HexTechArena
+        type: group
+    settings:
+      base:
+        INFOPLIST_FILE: HexTechArena/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.hextecharena.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_EMIT_LOC_STRINGS: "YES"
+    info:
+      path: HexTechArena/Info.plist
+      properties:
+        CFBundleName: "海克斯大乱斗"
+        CFBundleDisplayName: "海克斯大乱斗"
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations: {}
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UIUserInterfaceStyle: Light
