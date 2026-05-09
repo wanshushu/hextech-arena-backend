@@ -1,0 +1,95 @@
+<h2>海克斯选择器 - 用户输入流程</h2>
+<p class="subtitle">先选等级 → 系统刷新海克斯 → App推荐选择/刷新</p>
+
+<div class="mockup">
+  <div class="mockup-header">Step 1: 选择等级（用户输入当前等级）</div>
+  <div class="mockup-body">
+    <div style="background:#0a0a0f;min-height:200px;padding:16px;font-family:sans-serif;color:white">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:13px;color:#888;margin-bottom:12px">请选择当前等级</div>
+        <div style="display:flex;justify-content:center;gap:12px">
+          <div style="background:#12122a;padding:16px 32px;border-radius:8px;border:1px solid #00f0ff;cursor:pointer">
+            <div style="font-size:24px;font-weight:bold;color:#00f0ff;text-shadow:0 0 8px #00f0ff">7</div>
+            <div style="font-size:11px;color:#888">第1次选择</div>
+          </div>
+          <div style="background:#12122a;padding:16px 32px;border-radius:8px;border:1px solid #333;cursor:pointer">
+            <div style="font-size:24px;font-weight:bold;color:#aaa">11</div>
+            <div style="font-size:11px;color:#888">第2次选择</div>
+          </div>
+          <div style="background:#12122a;padding:16px 32px;border-radius:8px;border:1px solid #333;cursor:pointer">
+            <div style="font-size:24px;font-weight:bold;color:#aaa">15</div>
+            <div style="font-size:11px;color:#888">第3次选择</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px">
+  <div class="mockup-header">Step 2: 刷新海克斯（系统随机生成3个选项）</div>
+  <div class="mockup-body">
+    <div style="background:#0a0a0f;min-height:180px;padding:16px;font-family:sans-serif;color:white">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:13px;color:#888">7级 · 第1次海克斯选择</div>
+        <button style="background:#ff336644;color:#ff3366;padding:6px 12px;border-radius:4px;border:1px solid #ff3366;font-size:12px">🔄 重新随机</button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1;background:#1a1a2e;padding:14px;border-radius:8px;border:1px solid #333;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px">⚡</div>
+          <div style="font-size:12px;font-weight:bold">电能脉冲</div>
+          <div style="color:#666;font-size:10px;margin-top:4px">稀有品质</div>
+        </div>
+        <div style="flex:1;background:#1a1a2e;padding:14px;border-radius:8px;border:1px solid #333;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px">🛡️</div>
+          <div style="font-size:12px;font-weight:bold">护盾强化</div>
+          <div style="color:#666;font-size:10px;margin-top:4px">稀有品质</div>
+        </div>
+        <div style="flex:1;background:#1a1a2e;padding:14px;border-radius:8px;border:1px solid #333;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px">💨</div>
+          <div style="font-size:12px;font-weight:bold">迅捷步伐</div>
+          <div style="color:#666;font-size:10px;margin-top:4px">稀有品质</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:16px">
+  <div class="mockup-header">Step 3: App 给出推荐（标注推荐选项 + 刷新建议）</div>
+  <div class="mockup-body">
+    <div style="background:#0a0a0f;min-height:200px;padding:16px;font-family:sans-serif;color:white">
+      <div style="margin-bottom:12px;padding:10px;background:#00f0ff22;border:1px solid #00f0ff44;border-radius:8px">
+        <div style="font-size:13px;color:#00f0ff;font-weight:bold">💡 推荐选择</div>
+        <div style="font-size:12px;color:#aaa;margin-top:4px">
+          左边「电能脉冲」胜率最高（+2.3%），建议选择<br>
+          中间「护盾强化」胜率偏低（-0.8%），如果不喜欢可以点刷新
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1;background:#1a2a1a;padding:14px;border-radius:8px;border:2px solid #00ff88;text-align:center;position:relative">
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#00ff88;color:#000;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:bold">推荐选择</div>
+          <div style="font-size:28px;margin-bottom:6px;margin-top:4px">⚡</div>
+          <div style="font-size:12px;font-weight:bold">电能脉冲</div>
+          <div style="color:#00ff88;font-size:11px;margin-top:4px">胜率 +2.3%</div>
+        </div>
+        <div style="flex:1;background:#1a1a2e;padding:14px;border-radius:8px;border:1px solid #333;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px;opacity:0.6">🛡️</div>
+          <div style="font-size:12px;font-weight:bold">护盾强化</div>
+          <div style="color:#ff6666;font-size:11px;margin-top:4px">胜率 -0.8%</div>
+          <button style="margin-top:8px;background:#ff336644;color:#ff3366;padding:4px 10px;border-radius:4px;border:1px solid #ff3366;font-size:10px">🔄 刷新</button>
+        </div>
+        <div style="flex:1;background:#1a1a2e;padding:14px;border-radius:8px;border:1px solid #333;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px;opacity:0.6">💨</div>
+          <div style="font-size:12px;font-weight:bold">迅捷步伐</div>
+          <div style="color:#888;font-size:11px;margin-top:4px">胜率 +0.5%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;font-size:12px;color:#666">
+📝 <strong>流程说明：</strong><br>
+1. 用户选等级 (7/11/15) → 2. 系统随机出3个海克斯 → 3. App分析并标注推荐/刷新建议
+</p>

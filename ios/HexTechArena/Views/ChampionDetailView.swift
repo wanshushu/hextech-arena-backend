@@ -3,6 +3,7 @@ import SwiftUI
 struct ChampionDetailView: View {
     let championId: String
 
+    @Environment(\.dismiss) private var dismiss
     @State private var champion: Champion?
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -29,7 +30,9 @@ struct ChampionDetailView: View {
                         // Header
                         VStack(spacing: 12) {
                             HStack {
-                                Button { } label: {
+                                Button {
+                                    dismiss()
+                                } label: {
                                     Image(systemName: "chevron.left")
                                         .foregroundColor(.esportsText)
                                 }

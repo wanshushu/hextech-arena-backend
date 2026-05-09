@@ -110,7 +110,7 @@ def extract_items_from_chunk(chunk: str) -> List[str]:
     unique = []
     for alt in alts:
         alt = alt.strip()
-        # Filter out: "图标" keyword, URLs, empty, very short, and common non-item patterns
+        # Filter out non-item patterns
         if not alt:
             continue
         if alt.startswith("http"):
@@ -119,7 +119,12 @@ def extract_items_from_chunk(chunk: str) -> List[str]:
             continue
         if len(alt) < 2:
             continue
-        # Skip champion names (usually 2-4 Chinese chars, will be deduplicated later)
+        # Skip champion names (contain spaces, e.g., "北地之怒 瑟庄妮")
+        if " " in alt:
+            continue
+        # Skip augments (contain "强化" or "海克斯")
+        if "强化" in alt or "海克斯" in alt:
+            continue
         if alt in seen:
             continue
         seen.add(alt)

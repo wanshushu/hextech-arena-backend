@@ -63,7 +63,7 @@ actor APIService {
 
     // MARK: - Refresh
     func triggerRefresh() async throws {
-        let _: [String: String] = try await post("/refresh", body: [:])
+        let _: Data = try await post("/refresh", body: [:])
     }
 
     // MARK: - Private
