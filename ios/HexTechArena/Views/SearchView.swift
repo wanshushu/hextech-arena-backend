@@ -7,36 +7,58 @@ struct SearchView: View {
     @State private var hasSearched = false
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                if isLoading {
-                    ProgressView("搜索中...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if champions.isEmpty && hasSearched {
-                    ContentUnavailableView(
-                        "未找到英雄",
-                        systemImage: "magnifyingglass",
-                        description: Text("尝试其他关键词")
-                    )
-                } else {
-                    List(champions) { champion in
-                        NavigationLink(destination: ChampionDetailView(championId: champion.id)) {
-                            ChampionRowView(champion: champion)
+        ZStack {
+            Color.esportsBg.ignoresSafeArea()
+            NavigationStack {
+                VStack(spacing: 0) {
+                    if isLoading {
+                        ProgressView("搜索中...")
+                            .tint(.esportsAccent)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if champions.isEmpty && hasSearched {
+                        VStack(spacing: 16) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 48))
+                                .foregroundColor(.esportsTextSecondary)
+                            Text("未找到英雄")
+                                .font(.headline)
+                                .foregroundColor(.esportsText)
+                            Text("尝试其他关键词")
+                                .font(.subheadline)
+                                .foregroundColor(.esportsTextSecondary)
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(champions) { champion in
+                            NavigationLink(destination: ChampionDetailView(championId: champion.id)) {
+                                ChampionRowView(champion: champion)
+                            }
+                            .listRowBackground(Color.esportsCard)
+                        }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
                     }
-                    .listStyle(.plain)
                 }
-            }
-            .navigationTitle("搜索英雄")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "输入英雄名称")
-            .onChange(of: searchText) { _, newValue in
-                Task {
-                    await search(query: newValue)
+                .background(Color.esportsBg)
+                .navigationTitle("搜索英雄")
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $searchText, prompt: "输入英雄名称")
+                .onChange(of: searchText) { newValue in
+                    Task {
+                        await search(query: newValue)
+                    }
                 }
-            }
-            .task {
-                await loadInitial()
+                .navigationBarItems(trailing:
+                    Button {
+                        Task { await loadInitial() }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundColor(.esportsAccent)
+                    }
+                )
+                .task {
+                    await loadInitial()
+                }
             }
         }
     }
