@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2EF1982CA819FBB423233DA2 /* ChampionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D66190B8B613B2608D06B2 /* ChampionDetailView.swift */; };
+		AUGMENTSELECTORBUILD1234567 /* AugmentSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUGMENTSELECTORFILE12345678 /* AugmentSelectorView.swift */; };
 		391812529D3D615812664924 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00D0702914E5976A93A2D602 /* Assets.xcassets */; };
 		7EC4B51B094D9F01B3CF2A68 /* TierListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEF9BFA56BA4E2A6D63BA94 /* TierListView.swift */; };
 		A5B3790C46F2552E6F315B38 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839A91A51DB624538287E51E /* APIService.swift */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		00D0702914E5976A93A2D602 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AUGMENTSELECTORFILE12345678 /* AugmentSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AugmentSelectorView.swift; sourceTree = "<group>"; };
 		2156BE2469CA4CCC25964E0D /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		51D66190B8B613B2608D06B2 /* ChampionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChampionDetailView.swift; sourceTree = "<group>"; };
 		5386E96E885B0DB9C662D723 /* HexTechArena.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HexTechArena.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,6 +50,7 @@
 			children = (
 				51D66190B8B613B2608D06B2 /* ChampionDetailView.swift */,
 				7D5F436FBD7EDBF6A38D1111 /* ContentView.swift */,
+				AUGMENTSELECTORFILE12345678 /* AugmentSelectorView.swift */,
 				2156BE2469CA4CCC25964E0D /* SearchView.swift */,
 				B27262CD928A8FCDDFD414BA /* SettingsView.swift */,
 				CCEF9BFA56BA4E2A6D63BA94 /* TierListView.swift */,
@@ -174,6 +177,7 @@
 				A5B3790C46F2552E6F315B38 /* APIService.swift in Sources */,
 				DD05925142DA37DBE0174E5A /* Champion.swift in Sources */,
 				2EF1982CA819FBB423233DA2 /* ChampionDetailView.swift in Sources */,
+				AUGMENTSELECTORBUILD1234567 /* AugmentSelectorView.swift in Sources */,
 				B06350D0B50E8A521AD3D5C6 /* ContentView.swift in Sources */,
 				F883E73DAB84502D077B117F /* HexTechArenaApp.swift in Sources */,
 				D1CE4A938A19704D287B776F /* SearchView.swift in Sources */,

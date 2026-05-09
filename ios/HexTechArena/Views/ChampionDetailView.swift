@@ -8,125 +8,127 @@ struct ChampionDetailView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        ScrollView {
-            if isLoading {
-                ProgressView("加载中...")
+        ZStack {
+            Color.esportsBg.ignoresSafeArea()
+            ScrollView {
+                if isLoading {
+                    ProgressView("加载中...")
+                        .tint(.esportsAccent)
+                        .frame(maxWidth: .infinity, minHeight: 300)
+                } else if let error = errorMessage {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 48))
+                            .foregroundColor(.esportsTextSecondary)
+                        Text(error)
+                            .foregroundColor(.esportsTextSecondary)
+                    }
                     .frame(maxWidth: .infinity, minHeight: 300)
-            } else if let error = errorMessage {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
-                    Text(error)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 300)
-            } else if let champ = champion {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header
-                    VStack(spacing: 12) {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                Text(String(champ.name.prefix(1)))
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                            )
+                } else if let champ = champion {
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Header
+                        VStack(spacing: 12) {
+                            HStack {
+                                Button { } label: {
+                                    Image(systemName: "chevron.left")
+                                        .foregroundColor(.esportsText)
+                                }
+                                Spacer()
+                            }
 
-                        Text(champ.name)
-                            .font(.title)
-                            .fontWeight(.bold)
+                            Circle()
+                                .fill(LinearGradient(colors: [Color.tierColor(champ.tier), Color.tierColor(champ.tier).opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 80, height: 80)
+                                .overlay(
+                                    Text(String(champ.name.prefix(1)))
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                )
+                                .shadow(color: Color.tierColor(champ.tier).opacity(0.5), radius: 10)
 
-                        if !champ.title.isEmpty {
-                            Text(champ.title)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                            Text(champ.name)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.esportsText)
+
+                            if !champ.title.isEmpty {
+                                Text(champ.title)
+                                    .font(.subheadline)
+                                    .foregroundColor(.esportsTextSecondary)
+                            }
+
+                            HStack(spacing: 16) {
+                                StatCard(title: "胜率", value: champ.winrate, color: .esportsRecommend)
+                                StatCard(title: "选取率", value: champ.pickrate, color: .esportsAccent)
+                                StatCard(title: "梯队", value: champ.tier, color: Color.tierColor(champ.tier))
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.esportsCard)
+                        .cornerRadius(16)
+
+                        // Top Augments
+                        if let augments = champ.topAugments, !augments.isEmpty {
+                            ESportsSection(title: "🔮 海克斯强化 TOP3") {
+                                ForEach(Array(augments.prefix(3).enumerated()), id: \.element.id) { index, augment in
+                                    AugmentRowView(augment: augment, rank: index + 1)
+                                }
+                            }
                         }
 
-                        HStack(spacing: 16) {
-                            StatCard(title: "胜率", value: champ.winrate, color: .green)
-                            StatCard(title: "选取率", value: champ.pickrate, color: .blue)
-                            StatCard(title: "梯队", value: champ.tier, color: tierColor(champ.tier))
+                        // Core Items
+                        if let items = champ.coreItems, !items.isEmpty {
+                            ESportsSection(title: "⚔️ 核心装备") {
+                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                    ForEach(items, id: \.self) { item in
+                                        ItemBadge(name: item)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Situational Items
+                        if let items = champ.situationalItems, !items.isEmpty {
+                            ESportsSection(title: "❓ 情境装备") {
+                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                    ForEach(items, id: \.self) { item in
+                                        ItemBadge(name: item)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Starting Items
+                        if let items = champ.startingItems, !items.isEmpty {
+                            ESportsSection(title: "🏠 出门装") {
+                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                    ForEach(items, id: \.self) { item in
+                                        ItemBadge(name: item)
+                                    }
+                                }
+                            }
+                        }
+
+                        // NEW: Augment Selector
+                        AugmentSelectorView(championId: championId, championAugments: champ.topAugments ?? [])
+
+                        if let patch = champ.patch, !patch.isEmpty {
+                            HStack {
+                                Spacer()
+                                Text("数据来源: aram.gg | 版本 \(patch)")
+                                    .font(.caption)
+                                    .foregroundColor(.esportsTextSecondary)
+                                Spacer()
+                            }
                         }
                     }
-                    .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(.systemGroupedBackground))
-                    .cornerRadius(16)
-
-                    // Top Augments
-                    if let augments = champ.topAugments, !augments.isEmpty {
-                        SectionView(title: "海克斯强化", systemImage: "sparkles") {
-                            ForEach(augments) { augment in
-                                AugmentRowView(augment: augment)
-                            }
-                        }
-                    }
-
-                    // Core Items
-                    if let items = champ.coreItems, !items.isEmpty {
-                        SectionView(title: "核心装备", systemImage: "bag.fill") {
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                            ], spacing: 12) {
-                                ForEach(items, id: \.self) { item in
-                                    ItemBadge(name: item)
-                                }
-                            }
-                        }
-                    }
-
-                    // Situational Items
-                    if let items = champ.situationalItems, !items.isEmpty {
-                        SectionView(title: "情境装备", systemImage: "questionmark.circle.fill") {
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                            ], spacing: 12) {
-                                ForEach(items, id: \.self) { item in
-                                    ItemBadge(name: item)
-                                }
-                            }
-                        }
-                    }
-
-                    // Starting Items
-                    if let items = champ.startingItems, !items.isEmpty {
-                        SectionView(title: "出门装", systemImage: "house.fill") {
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                            ], spacing: 12) {
-                                ForEach(items, id: \.self) { item in
-                                    ItemBadge(name: item)
-                                }
-                            }
-                        }
-                    }
-
-                    if let patch = champ.patch, !patch.isEmpty {
-                        HStack {
-                            Spacer()
-                            Text("数据来源: aram.gg | 版本 \(patch)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                        }
-                    }
                 }
-                .padding()
             }
         }
-        .navigationTitle(champion?.name ?? "英雄详情")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
         .task {
             await loadChampion()
         }
@@ -141,17 +143,6 @@ struct ChampionDetailView: View {
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
-        }
-    }
-
-    private func tierColor(_ tier: String) -> Color {
-        switch tier {
-        case "T1": return Color(hex: "FF6B6B")
-        case "T2": return Color(hex: "FFA94D")
-        case "T3": return Color(hex: "FFE066")
-        case "T4": return Color(hex: "69DB7C")
-        case "T5": return Color(hex: "74C0FC")
-        default: return .gray
         }
     }
 }
@@ -169,54 +160,63 @@ struct StatCard: View {
                 .foregroundColor(color)
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.esportsTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.esportsCard)
         .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.esportsBorder, lineWidth: 1))
     }
 }
 
-struct SectionView<Content: View>: View {
+struct ESportsSection<Content: View>: View {
     let title: String
-    let systemImage: String
     @ViewBuilder let content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label(title, systemImage: systemImage)
+            Text(title)
                 .font(.headline)
-                .foregroundColor(Color(hex: "673AB7"))
-
+                .foregroundColor(.esportsAccent)
             content
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.esportsCard)
         .cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.esportsBorder, lineWidth: 1))
     }
 }
 
 struct AugmentRowView: View {
     let augment: Augment
+    let rank: Int
 
     var body: some View {
         HStack {
+            Text("\(rank)")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.esportsAccent)
+                .frame(width: 20)
+
             Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 40, height: 40)
+                .fill(Color.esportsCard)
+                .frame(width: 36, height: 36)
                 .overlay(
                     Image(systemName: "sparkles")
-                        .foregroundColor(Color(hex: "673AB7"))
+                        .foregroundColor(.esportsAccent)
+                        .font(.system(size: 14))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(augment.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
+                    .foregroundColor(.esportsText)
                 Text(augment.tier)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.esportsTextSecondary)
             }
 
             Spacer()
@@ -225,10 +225,10 @@ struct AugmentRowView: View {
                 Text(augment.winrate)
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(.green)
+                    .foregroundColor(.esportsRecommend)
                 Text(augment.pickrate)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.esportsTextSecondary)
             }
         }
         .padding(.vertical, 4)
@@ -241,7 +241,7 @@ struct ItemBadge: View {
     var body: some View {
         VStack(spacing: 4) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.3))
+                .fill(Color.esportsCard)
                 .frame(width: 50, height: 50)
                 .overlay(
                     Image(systemName: "shield.fill")
@@ -251,6 +251,7 @@ struct ItemBadge: View {
                 .font(.caption2)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
+                .foregroundColor(.esportsText)
         }
     }
 }
