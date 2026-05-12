@@ -28,6 +28,8 @@ from .database import (
     get_last_refresh,
     set_meta,
     get_meta,
+    upsert_global_augments,
+    get_all_augment_names,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -130,6 +132,41 @@ def extract_items_from_chunk(chunk: str) -> List[str]:
         seen.add(alt)
         unique.append(alt)
     return unique
+
+
+async def scrape_global_augments() -> List[str]:
+    """Scrape the global augments ranking page to get all unique augment names."""
+    logger.info("Scraping global augments ranking...")
+    url = "https://aramgg.com/zh-CN/augments"
+    html = await fetch_html(url, use_playwright=True)
+
+    seen = set()
+    augment_names = []
+
+    # Find img tags and check their surrounding context for augment keywords
+    img_pattern = re.compile(r'<img[^>]*alt=\"([^\"]{2,30})\"[^>]*>', re.DOTALL)
+    for m in img_pattern.finditer(html):
+        alt = m.group(1).strip()
+        start = max(0, m.start() - 100)
+        end = min(len(html), m.end() + 100)
+        context = html[start:end].lower()
+
+        # Only include if in augment context
+        if not any(kw in context for kw in ['强化', 'augment', '海克斯']):
+            continue
+        if not alt or len(alt) < 2:
+            continue
+        if alt.startswith("http"):
+            continue
+        if "图标" in alt:
+            continue
+        if alt in seen:
+            continue
+        seen.add(alt)
+        augment_names.append(alt)
+
+    logger.info(f"Found {len(augment_names)} global augments")
+    return augment_names
 
 
 # ─── Scraping ─────────────────────────────────────────────────────────────────

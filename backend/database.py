@@ -74,6 +74,14 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS global_augments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            display_order INTEGER DEFAULT 0
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -163,7 +171,36 @@ def get_champion_by_id(champ_id: str) -> Optional[Dict]:
     champion = dict(row)
 
     cursor.execute("SELECT * FROM augments WHERE champion_id = ? ORDER BY position", (champ_id,))
-    champion["top_augments"] = [dict(r) for r in cursor.fetchall()]
+    top_augments = [dict(r) for r in cursor.fetchall()]
+    champion["top_augments"] = top_augments
+
+    # Build winrate lookup from top augments
+    winrate_map: Dict[str, Dict] = {a["name"]: a for a in top_augments}
+
+    # Get all augment names (global_augments table if populated, otherwise union of all augments)
+    cursor.execute("SELECT name FROM global_augments ORDER BY display_order")
+    global_rows = cursor.fetchall()
+    if global_rows:
+        global_names = [r["name"] for r in global_rows]
+    else:
+        # Fallback: union of all augment names across champions
+        cursor.execute("SELECT DISTINCT name FROM augments ORDER BY name")
+        global_names = [r["name"] for r in cursor.fetchall()]
+
+    # Combine: global augment names + per-champion winrate/tier/pickrate if available
+    all_augments = []
+    for name in global_names:
+        if name in winrate_map:
+            all_augments.append(winrate_map[name])
+        else:
+            all_augments.append({
+                "name": name,
+                "tier": "",
+                "winrate": "",
+                "pickrate": "",
+                "champion_id": champ_id
+            })
+    champion["all_augments"] = all_augments
 
     for category, label in [("core", "core_items"), ("situational", "situational_items"), ("starting", "starting_items")]:
         cursor.execute(
@@ -246,3 +283,36 @@ def get_meta(key: str) -> Optional[str]:
     row = cursor.fetchone()
     conn.close()
     return row["value"] if row else None
+
+
+def upsert_global_augments(augment_names: List[str]):
+    """Replace all global augments with a new list"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM global_augments")
+    for i, name in enumerate(augment_names):
+        cursor.execute("""
+            INSERT INTO global_augments (name, display_order) VALUES (?, ?)
+        """, (name, i))
+    conn.commit()
+    conn.close()
+
+
+def get_all_augment_names() -> List[str]:
+    """Get all augment names from the union of all champions' augment lists (ordered by global_augments if available, otherwise alphabetically)"""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # First try global_augments table
+    cursor.execute("SELECT name FROM global_augments ORDER BY display_order")
+    rows = cursor.fetchall()
+    if rows:
+        result = [r["name"] for r in rows]
+        conn.close()
+        return result
+
+    # Fallback: union of all augment names across champions
+    cursor.execute("SELECT DISTINCT name FROM augments ORDER BY name")
+    result = [r["name"] for r in cursor.fetchall()]
+    conn.close()
+    return result

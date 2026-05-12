@@ -1,15 +1,24 @@
+# Database
+*.db
+
 # Python
 __pycache__/
 *.py[cod]
 venv/
 .venv/
+.env
 
-# Database
-*.db
+# Build outputs
+ios/build/
+DerivedData/
 
 # macOS
 .DS_Store
 
-# Xcode
-xcuserdata/
+# IDE
+.idea/
+.vscode/
 *.xcuserdatad
+
+# Logs
+*.log
