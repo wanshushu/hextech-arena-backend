@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>海克斯大乱斗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --card: #12122a;
+            --border: #222222;
+            --t1: #FF3366;
+            --t2: #FFA94D;
+            --t3: #FFE066;
+            --t4: #69DB7C;
+            --t5: #74C0FC;
+            --accent: #00f0ff;
+            --recommend: #00ff88;
+            --warning: #FF3366;
+            --text: #ffffff;
+            --text-secondary: #888888;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--accent), var(--recommend));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .tab[data-tier="T1"].active { background: var(--t1); border-color: var(--t1); }
+        .tab[data-tier="T2"].active { background: var(--t2); border-color: var(--t2); color: #000; }
+        .tab[data-tier="T3"].active { background: var(--t3); border-color: var(--t3); color: #000; }
+        .tab[data-tier="T4"].active { background: var(--t4); border-color: var(--t4); color: #000; }
+        .tab[data-tier="T5"].active { background: var(--t5); border-color: var(--t5); color: #000; }
+
+        /* Search */
+        .search-box {
+            padding: 0 16px 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Champion Grid */
+        .champion-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            padding: 0 16px 16px;
+        }
+
+        .champion-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .champion-card:active {
+            transform: scale(0.95);
+        }
+
+        .champion-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .champion-name {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .champion-tier {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .tier-T1 { background: var(--t1); color: white; }
+        .tier-T2 { background: var(--t2); color: #000; }
+        .tier-T3 { background: var(--t3); color: #000; }
+        .tier-T4 { background: var(--t4); color: #000; }
+        .tier-T5 { background: var(--t5); color: #000; }
+
+        /* Champion Detail */
+        .detail-view {
+            display: none;
+            padding: 16px;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-size: 14px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .detail-header {
+            text-align: center;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .detail-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .detail-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .detail-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .detail-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--recommend);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Section */
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        /* Augments */
+        .augment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .augment-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .augment-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--card);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .augment-name {
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .augment-winrate {
+            font-size: 11px;
+            color: var(--recommend);
+        }
+
+        /* Selector */
+        .selector-levels {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .level-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .level-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .selector-slots {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .slot {
+            flex: 1;
+            height: 70px;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg);
+        }
+
+        .slot.filled {
+            border-style: solid;
+            border-color: var(--accent);
+            background: var(--card);
+        }
+
+        .slot-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .slot-text {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--warning), #FF6699);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--recommend);
+            border-radius: 12px;
+        }
+
+        .result-title {
+            color: var(--recommend);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .refresh-suggestion {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 51, 102, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* Items */
+        .items-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .item-badge {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .item-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--card);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            color: var(--accent);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal-search {
+            padding: 12px 16px;
+            position: sticky;
+            top: 60px;
+            background: var(--bg);
+        }
+
+        .modal-search input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .modal-list {
+            padding: 0 16px 16px;
+        }
+
+        .modal-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .modal-item:active {
+            background: var(--border);
+        }
+
+        .modal-item-name {
+            font-size: 14px;
+        }
+
+        .modal-item-winrate {
+            font-size: 12px;
+            color: var(--recommend);
+        }
+
+        /* Patch info */
+        .patch-info {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main View -->
+    <div id="mainView">
+        <div class="header">
+            <h1>🎯 海克斯大乱斗</h1>
+            <p id="updateTime">加载中...</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tier="all">全部</div>
+            <div class="tab" data-tier="T1">T1</div>
+            <div class="tab" data-tier="T2">T2</div>
+            <div class="tab" data-tier="T3">T3</div>
+            <div class="tab" data-tier="T4">T4</div>
+            <div class="tab" data-tier="T5">T5</div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索英雄...">
+        </div>
+
+        <div id="championList" class="champion-list">
+            <div class="loading"><div class="spinner"></div>加载中...</div>
+        </div>
+    </div>
+
+    <!-- Detail View -->
+    <div id="detailView" class="detail-view">
+        <div class="back-btn" onclick="showMain()">
+            ← 返回
+        </div>
+
+        <div id="detailContent"></div>
+    </div>
+
+    <!-- Augment Picker Modal -->
+    <div id="augmentModal" class="modal">
+        <div class="modal-header">
+            <span class="modal-title">选择海克斯</span>
+            <span class="modal-close" onclick="closeAugmentModal()">取消</span>
+        </div>
+        <div class="modal-search">
+            <input type="text" id="augmentSearch" placeholder="搜索海克斯...">
+        </div>
+        <div id="augmentList" class="modal-list"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://web-production-fa0e7.up.railway.app';
+
+        let currentTier = 'all';
+        let currentSearch = '';
+        let allChampions = [];
+        let currentChampion = null;
+        let selectorSlots = [null, null, null];
+        let selectedSlotIndex = null;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        // Tab click
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTier = tab.dataset.tier;
+                renderChampions();
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderChampions();
+        });
+
+        async function loadData() {
+            try {
+                const res = await fetch(`${API_BASE}/tier-list`);
+                const data = await res.json();
+
+                allChampions = [];
+                Object.values(data.tiers).forEach(champs => {
+                    allChampions.push(...champs);
+                });
+
+                const date = new Date(data.updated_at);
+                document.getElementById('updateTime').textContent =
+                    `更新: ${date.toLocaleDateString('zh-CN')} ${date.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}`;
+
+                renderChampions();
+            } catch (e) {
+                document.getElementById('championList').innerHTML =
+                    `<div class="loading">加载失败: ${e.message}<br>请确保后端运行在 ${API_BASE}</div>`;
+            }
+        }
+
+        function renderChampions() {
+            let champs = allChampions;
+
+            if (currentTier !== 'all') {
+                champs = champs.filter(c => c.tier === currentTier);
+            }
+
+            if (currentSearch) {
+                const s = currentSearch.toLowerCase();
+                champs = champs.filter(c => c.name.toLowerCase().includes(s));
+            }
+
+            if (champs.length === 0) {
+                document.getElementById('championList').innerHTML =
+                    '<div class="loading">没有找到英雄</div>';
+                return;
+            }
+
+            document.getElementById('championList').innerHTML = champs.map(c => `
+                <div class="champion-card" onclick="showDetail('${c.id}')">
+                    <div class="champion-avatar" style="background: linear-gradient(135deg, var(--${c.tier.toLowerCase()}), var(--${c.tier.toLowerCase()}88));">
+                        ${c.name.charAt(0)}
+                    </div>
+                    <div class="champion-name">${c.name}</div>
+                    <span class="champion-tier tier-${c.tier}">${c.tier}</span>
+                </div>
+            `).join('');
+        }
+
+        async function showDetail(id) {
+            document.getElementById('mainView').style.display = 'none';
+            document.getElementById('detailView').classList.add('active');
+            document.getElementById('detailContent').innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
+
+            try {
+                const res = await fetch(`${API_BASE}/champions/${id}`);
+                currentChampion = await res.json();
+                renderDetail();
+            } catch (e) {
+                document.getElementById('detailContent').innerHTML =
+                    `<div class="loading">加载失败: ${e.message}</div>`;
+            }
+        }
+
+        function showMain() {
+            document.getElementById('detailView').classList.remove('active');
+            document.getElementById('mainView').style.display = 'block';
+            currentChampion = null;
+        }
+
+        function renderDetail() {
+            const c = currentChampion;
+            if (!c) return;
+
+            const tierColor = `var(--${c.tier.toLowerCase()})`;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-header">
+                    <div class="detail-avatar" style="background: linear-gradient(135deg, ${tierColor}, ${tierColor}88);">
+                        ${c.name.charAt(0)}
+                    </div>
+                    <div class="detail-name">${c.name}</div>
+                    <div class="detail-title">${c.title}</div>
+                    <div class="detail-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${c.winrate}</div>
+                            <div class="stat-label">胜率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${c.pickrate}</div>
+                            <div class="stat-label">选取率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: ${tierColor}">${c.tier}</div>
+                            <div class="stat-label">梯队</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Augment Selector -->
+                <div class="section">
+                    <div class="section-title">🎯 海克斯推荐</div>
+                    <div class="selector-levels">
+                        <button class="level-btn active" onclick="selectLevel(7, this)">7级</button>
+                        <button class="level-btn" onclick="selectLevel(11, this)">11级</button>
+                        <button class="level-btn" onclick="selectLevel(15, this)">15级</button>
+                    </div>
+                    <div class="selector-slots">
+                        <div class="slot" onclick="openAugmentModal(0)">
+                            <div class="slot-icon">✨</div>
+                            <div class="slot-text">选择海克斯</div>
+                        </div>
+                        <div class="slot" onclick="openAugmentModal(1)">
+                            <div class="slot-icon">✨</div>
+                            <div class="slot-text">选择海克斯</div>
+                        </div>
+                        <div class="slot" onclick="openAugmentModal(2)">
+                            <div class="slot-icon">✨</div>
+                            <div class="slot-text">选择海克斯</div>
+                        </div>
+                    </div>
+                    <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" disabled>
+                        分析推荐
+                    </button>
+                    <div id="resultArea"></div>
+                </div>
+
+                <!-- Top Augments -->
+                ${c.top_augments && c.top_augments.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">🔮 TOP 海克斯</div>
+                    <div class="augment-grid">
+                        ${c.top_augments.slice(0, 6).map(a => `
+                            <div class="augment-item">
+                                <div class="augment-icon">✨</div>
+                                <div class="augment-name">${a.name}</div>
+                                <div class="augment-winrate">${a.winrate}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Core Items -->
+                ${c.core_items && c.core_items.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">⚔️ 核心装备</div>
+                    <div class="items-grid">
+                        ${c.core_items.map(item => `
+                            <div class="item-badge">
+                                <div class="item-icon">🛡</div>
+                                ${item}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Situational Items -->
+                ${c.situational_items && c.situational_items.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">❓ 情境装备</div>
+                    <div class="items-grid">
+                        ${c.situational_items.map(item => `
+                            <div class="item-badge">
+                                <div class="item-icon">🛡</div>
+                                ${item}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Starting Items -->
+                ${c.starting_items && c.starting_items.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">🏠 出门装</div>
+                    <div class="items-grid">
+                        ${c.starting_items.map(item => `
+                            <div class="item-badge">
+                                <div class="item-icon">🛡</div>
+                                ${item}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="patch-info">
+                    数据来源: aram.gg${c.patch ? ` | 版本 ${c.patch}` : ''}
+                </div>
+            `;
+        }
+
+        function selectLevel(level, btn) {
+            document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function openAugmentModal(slotIndex) {
+            selectedSlotIndex = slotIndex;
+            selectorSlots[slotIndex] = null;
+            renderAugmentModal();
+            document.getElementById('augmentModal').classList.add('active');
+            document.getElementById('augmentSearch').value = '';
+        }
+
+        function closeAugmentModal() {
+            document.getElementById('augmentModal').classList.remove('active');
+            updateSlotsUI();
+            checkAnalyzeBtn();
+        }
+
+        function renderAugmentModal() {
+            const allAugments = currentChampion.all_augments || currentChampion.top_augments || [];
+            const search = document.getElementById('augmentSearch').value.toLowerCase();
+            let augments = allAugments;
+
+            if (search) {
+                augments = augments.filter(a => a.name.toLowerCase().includes(search));
+            }
+
+            document.getElementById('augmentList').innerHTML = augments.map(a => `
+                <div class="modal-item" onclick="selectAugment('${a.name}', '${a.winrate}')">
+                    <span class="modal-item-name">${a.name}</span>
+                    <span class="modal-item-winrate">${a.winrate || '无数据'}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectAugment(name, winrate) {
+            selectorSlots[selectedSlotIndex] = { name, winrate };
+            closeAugmentModal();
+        }
+
+        function updateSlotsUI() {
+            const slots = document.querySelectorAll('.slot');
+            slots.forEach((slot, i) => {
+                const data = selectorSlots[i];
+                if (data) {
+                    slot.classList.add('filled');
+                    slot.innerHTML = `
+                        <div class="slot-icon">✨</div>
+                        <div class="slot-text">${data.name}</div>
+                    `;
+                } else {
+                    slot.classList.remove('filled');
+                    slot.innerHTML = `
+                        <div class="slot-icon">✨</div>
+                        <div class="slot-text">选择海克斯</div>
+                    `;
+                }
+            });
+        }
+
+        function checkAnalyzeBtn() {
+            const btn = document.getElementById('analyzeBtn');
+            const filled = selectorSlots.filter(s => s !== null).length;
+            btn.disabled = filled < 3;
+        }
+
+        function analyze() {
+            const filled = selectorSlots.filter(s => s !== null);
+            if (filled.length !== 3) return;
+
+            // Sort by winrate
+            const sorted = [...filled].sort((a, b) => {
+                const wrA = parseFloat(a.winrate) || 0;
+                const wrB = parseFloat(b.winrate) || 0;
+                return wrB - wrA;
+            });
+
+            const best = sorted[0];
+            const worst = sorted[2];
+
+            const wrDiff = (parseFloat(best.winrate) || 0) - (parseFloat(worst.winrate) || 0);
+
+            let html = `
+                <div class="result">
+                    <div class="result-title">✅ 推荐选择：「${best.name}」</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">
+                        胜率 ${best.winrate}，表现最佳
+                    </div>
+                </div>
+            `;
+
+            if (wrDiff > 1) {
+                html += `
+                    <div class="refresh-suggestion">
+                        ⚠️ 「${worst.name}」胜率偏低（${worst.winrate}）
+                        <br>建议刷新（有1次机会）
+                    </div>
+                `;
+            }
+
+            document.getElementById('resultArea').innerHTML = html;
+        }
+
+        // Augment search
+        document.getElementById('augmentSearch').addEventListener('input', renderAugmentModal);
+    </script>
+</body>
+</html>
