@@ -8,7 +8,7 @@
   },
   "deploy": {
     "numReplicas": 1,
-    "restartPolicyType": "onFailure",
-    "restartPolicyAmount": 10
+    "restartPolicyType": "OnFailure",
+    "restartPolicyAmount": 5
   }
 }
