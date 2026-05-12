@@ -53,9 +53,8 @@ USER_AGENT = (
 
 # ─── HTTP helpers ─────────────────────────────────────────────────────────────
 async def fetch_html(url: str, use_playwright: bool = False) -> str:
-    if use_playwright:
-        return await _fetch_playwright(url)
-
+    """Fetch HTML page. Uses httpx by default. Set use_playwright=true to force Playwright (not recommended on Railway)."""
+    # Try httpx first (works on all platforms)
     try:
         async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
             resp = await client.get(url, headers={
@@ -65,8 +64,14 @@ async def fetch_html(url: str, use_playwright: bool = False) -> str:
             resp.raise_for_status()
             return resp.text
     except Exception as e:
-        logger.warning(f"httpx failed ({e}), trying Playwright")
-        return await _fetch_playwright(url)
+        logger.warning(f"httpx failed: {e}")
+        # Fall back to Playwright only if explicitly requested and not on Railway
+        if use_playwright:
+            try:
+                return await _fetch_playwright(url)
+            except Exception as pw_err:
+                logger.error(f"Playwright also failed: {pw_err}")
+        raise
 
 
 async def _fetch_playwright(url: str, is_detail: bool = False) -> str:
@@ -138,7 +143,7 @@ async def scrape_global_augments() -> List[str]:
     """Scrape the global augments ranking page to get all unique augment names."""
     logger.info("Scraping global augments ranking...")
     url = "https://aramgg.com/zh-CN/augments"
-    html = await fetch_html(url, use_playwright=True)
+    html = await fetch_html(url, use_playwright=False)
 
     seen = set()
     augment_names = []
@@ -173,7 +178,7 @@ async def scrape_global_augments() -> List[str]:
 async def scrape_tier_list() -> Dict[str, List[Dict]]:
     logger.info("Scraping tier list...")
     url = "https://aramgg.com/zh-CN"
-    html = await fetch_html(url, use_playwright=True)
+    html = await fetch_html(url, use_playwright=False)
 
     tiers: Dict[str, List[Dict]] = {"T1": [], "T2": [], "T3": [], "T4": [], "T5": []}
 
@@ -234,7 +239,7 @@ async def scrape_tier_list() -> Dict[str, List[Dict]]:
 async def scrape_champion_detail(champ_id: str) -> Optional[Dict]:
     url = f"https://aramgg.com/zh-CN/champion-stats/{champ_id}"
     logger.info(f"Scraping champion {champ_id}")
-    html = await fetch_html(url, use_playwright=True)
+    html = await fetch_html(url, use_playwright=False)
 
     h1_m = re.search(r'<h1[^>]*>([^<]+)</h1>', html)
     if not h1_m:
