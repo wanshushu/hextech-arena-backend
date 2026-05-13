@@ -341,8 +341,14 @@ async def refresh_cache():
 # ─── Startup ─────────────────────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup():
+    import os
+    from backend.database import DATABASE_PATH
+    logger.info(f"Database path: {DATABASE_PATH}")
+    logger.info(f"Database exists: {os.path.exists(DATABASE_PATH)}")
+    if os.path.exists(DATABASE_PATH):
+        logger.info(f"Database size: {os.path.getsize(DATABASE_PATH)} bytes")
     init_db()
-    asyncio.create_task(refresh_cache())
+    logger.info("API ready. Data loaded from database.")
 
 
 # ─── API Routes ──────────────────────────────────────────────────────────────
