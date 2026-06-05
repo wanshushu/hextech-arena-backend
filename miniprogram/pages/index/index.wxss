@@ -1,0 +1,55 @@
+.container {
+  padding-bottom: 20rpx;
+}
+
+/* 头部 */
+.header {
+  padding: 24rpx 24rpx 16rpx;
+}
+.title {
+  font-size: 36rpx;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent), var(--recommend));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.subtitle {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  margin-top: 6rpx;
+}
+
+/* Tab 栏 */
+.tabs {
+  white-space: nowrap;
+  padding: 0 24rpx 20rpx;
+}
+.tab {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  border-radius: 28rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  border: 1rpx solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+  margin-right: 12rpx;
+}
+.tab.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.tab.active.tier-bg-T1 { background: var(--t1); border-color: var(--t1); }
+.tab.active.tier-bg-T2 { background: var(--t2); border-color: var(--t2); color: #000; }
+.tab.active.tier-bg-T3 { background: var(--t3); border-color: var(--t3); color: #000; }
+.tab.active.tier-bg-T4 { background: var(--t4); border-color: var(--t4); color: #000; }
+.tab.active.tier-bg-T5 { background: var(--t5); border-color: var(--t5); color: #000; }
+
+/* 英雄网格 */
+.champ-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  padding: 0 24rpx;
+}

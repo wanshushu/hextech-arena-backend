@@ -1,0 +1,7 @@
+<view class="champ-card" bindtap="onTap">
+  <image class="champ-avatar" src="{{champion.image_url || ''}}" mode="aspectFill" lazy-load>
+    <view class="avatar-fallback" wx:if="{{!champion.image_url}}">{{champion.name[0]}}</view>
+  </image>
+  <view class="champ-name">{{champion.name}}</view>
+  <view class="tier-tag tier-{{champion.tier}}">{{champion.tier}}</view>
+</view>

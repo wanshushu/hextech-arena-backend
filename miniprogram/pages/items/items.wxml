@@ -1,0 +1,56 @@
+<view class="container">
+  <view class="header">
+    <view class="title">🗡 装备图鉴</view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <input
+      placeholder="搜索装备..."
+      placeholder-style="color: #666"
+      bindinput="onSearch"
+      value="{{searchText}}"
+    />
+  </view>
+
+  <!-- 排序 -->
+  <view class="sort-bar">
+    <text
+      class="sort-btn {{sortBy === 'price' ? 'active' : ''}}"
+      bindtap="onSort"
+      data-sort="price"
+    >按价格</text>
+    <text
+      class="sort-btn {{sortBy === 'name' ? 'active' : ''}}"
+      bindtap="onSort"
+      data-sort="name"
+    >按名称</text>
+    <text class="item-count">共 {{filteredItems.length}} 件</text>
+  </view>
+
+  <!-- 装备列表 -->
+  <view class="item-list" wx:if="{{filteredItems.length > 0}}">
+    <view class="item-card" wx:for="{{filteredItems}}" wx:key="id">
+      <view class="item-row">
+        <image class="item-icon" src="{{item.image_url}}" mode="aspectFit" lazy-load />
+        <view class="item-info">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-plain" wx:if="{{item.plaintext}}">{{item.plaintext}}</view>
+        </view>
+        <view class="item-price">{{item.gold_total}}g</view>
+      </view>
+      <view class="item-stats" wx:if="{{item.statsKeys.length > 0}}">
+        <text class="stat-chip" wx:for="{{item.statsKeys}}" wx:for-item="sk" wx:key="*this">{{sk}} +{{item.stats[sk]}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && filteredItems.length === 0}}">
+    没有找到装备
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text>加载中...</text>
+  </view>
+</view>

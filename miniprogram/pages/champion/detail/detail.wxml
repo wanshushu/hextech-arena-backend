@@ -1,0 +1,95 @@
+<view class="container" wx:if="{{champion}}">
+  <!-- 英雄头部 -->
+  <view class="hero-section">
+    <image
+      class="hero-splash"
+      src="{{champion.images.splash}}"
+      mode="aspectFill"
+      wx:if="{{champion.images.splash}}"
+    />
+    <view class="hero-overlay">
+      <image class="hero-icon" src="{{champion.images.icon}}" mode="aspectFill" />
+      <view class="hero-info">
+        <view class="hero-name">{{champion.name}}</view>
+        <view class="hero-title">{{champion.title}}</view>
+        <view class="hero-tags">
+          <text class="tag" wx:for="{{champion.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据概览 -->
+  <view class="stats-bar card">
+    <view class="stat-item">
+      <view class="stat-value" style="color: {{tierColor}}">{{champion.tier || '-'}}</view>
+      <view class="stat-label">梯队</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value recommend">{{champion.winrate || '-'}}</view>
+      <view class="stat-label">胜率</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{champion.pickrate || '-'}}</view>
+      <view class="stat-label">选取率</view>
+    </view>
+  </view>
+
+  <!-- 技能 -->
+  <view class="card" wx:if="{{champion.spells.length > 0}}">
+    <view class="section-title">📖 技能</view>
+    <view class="skill-list">
+      <view class="skill-item" wx:if="{{champion.passive.name}}">
+        <view class="skill-key">被动</view>
+        <view class="skill-name">{{champion.passive.name}}</view>
+        <view class="skill-desc">{{champion.passive.description}}</view>
+      </view>
+      <view class="skill-item" wx:for="{{champion.spells}}" wx:key="name">
+        <view class="skill-key">{{skillKeys[index]}}</view>
+        <view class="skill-name">{{item.name}}</view>
+        <view class="skill-desc">{{item.description}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 海克斯推荐 -->
+  <view class="card" wx:if="{{champion.top_augments.length > 0}}">
+    <view class="section-title">🔮 海克斯推荐</view>
+    <view class="augment-list">
+      <view class="augment-row" wx:for="{{champion.top_augments}}" wx:key="name">
+        <view class="augment-rank">#{{index + 1}}</view>
+        <view class="augment-name">{{item.name}}</view>
+        <view class="augment-tier">{{item.tier}}</view>
+        <view class="augment-wr">{{item.winrate}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 出装推荐 -->
+  <view class="card" wx:if="{{champion.core_items.length > 0}}">
+    <view class="section-title">⚔️ 核心装备</view>
+    <view class="item-tags">
+      <text class="item-tag" wx:for="{{champion.core_items}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{champion.situational_items.length > 0}}">
+    <view class="section-title">🛡 情境装备</view>
+    <view class="item-tags">
+      <text class="item-tag" wx:for="{{champion.situational_items}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{champion.starting_items.length > 0}}">
+    <view class="section-title">🏠 出门装</view>
+    <view class="item-tags">
+      <text class="item-tag" wx:for="{{champion.starting_items}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <view class="spinner"></view>
+  <text>加载中...</text>
+</view>

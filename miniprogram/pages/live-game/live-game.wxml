@@ -1,0 +1,137 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="title">⚡ 实时对局</view>
+    <view class="subtitle">输入召唤师名，秒查当前对局攻略</view>
+  </view>
+
+  <!-- 搜索区 -->
+  <view class="search-section card">
+    <view class="input-row">
+      <input
+        class="name-input"
+        placeholder="召唤师名"
+        placeholder-style="color: #666"
+        bindinput="onNameInput"
+        value="{{summonerName}}"
+      />
+      <view class="tag-sep">#</view>
+      <input
+        class="tag-input"
+        placeholder="标签"
+        placeholder-style="color: #666"
+        bindinput="onTagInput"
+        value="{{tagLine}}"
+      />
+    </view>
+    <button class="query-btn" bindtap="onQuery" loading="{{querying}}">
+      查询对局
+    </button>
+    <!-- 历史记录 -->
+    <view class="history" wx:if="{{history.length > 0}}">
+      <text class="history-label">最近查询：</text>
+      <text
+        class="history-item"
+        wx:for="{{history}}"
+        wx:key="*this"
+        bindtap="onHistoryTap"
+        data-name="{{item.name}}"
+        data-tag="{{item.tag}}"
+      >{{item.name}}#{{item.tag}}</text>
+    </view>
+  </view>
+
+  <!-- 结果：不在对局 -->
+  <view class="card result-card" wx:if="{{result && result.status === 'not_in_game'}}">
+    <view class="result-icon">😴</view>
+    <view class="result-text">{{result.summoner}} 当前不在对局中</view>
+    <view class="result-hint">开局后再来查询</view>
+  </view>
+
+  <!-- 结果：在对局中 -->
+  <view wx:if="{{result && result.status === 'in_game'}}">
+    <view class="game-header card">
+      <text class="game-mode">{{result.game_mode}}</text>
+      <text class="game-info">10 人对局</text>
+    </view>
+
+    <!-- 蓝色方 -->
+    <view class="team-section">
+      <view class="team-header team-blue">🔵 蓝色方</view>
+      <view
+        class="player-card card"
+        wx:for="{{blueTeam}}"
+        wx:key="summoner_name"
+        bindtap="onPlayerTap"
+        data-key="{{item.champion.key}}"
+      >
+        <view class="player-row">
+          <image class="player-icon" src="{{item.champion.image}}" mode="aspectFill" />
+          <view class="player-info">
+            <view class="player-name">{{item.champion.name}}</view>
+            <view class="player-tags">
+              <text class="tag" wx:for="{{item.champion.tags}}" wx:for-item="t" wx:key="*this">{{t}}</text>
+            </view>
+          </view>
+          <view class="player-stats">
+            <view class="tier-tag tier-{{item.aram.tier}}" wx:if="{{item.aram.tier}}">{{item.aram.tier}}</view>
+            <view class="player-wr">{{item.aram.winrate}}</view>
+          </view>
+        </view>
+        <!-- 展开的详情 -->
+        <view class="player-detail" wx:if="{{expandedKey === item.champion.key}}">
+          <view class="detail-row" wx:if="{{item.aram.top_augments.length > 0}}">
+            <text class="detail-label">🔮 海克斯：</text>
+            <text class="detail-value" wx:for="{{item.aram.top_augments}}" wx:for-item="aug" wx:key="name">{{aug.name}} </text>
+          </view>
+          <view class="detail-row" wx:if="{{item.aram.core_items.length > 0}}">
+            <text class="detail-label">⚔️ 核心装：</text>
+            <text class="detail-value" wx:for="{{item.aram.core_items}}" wx:for-item="it" wx:key="*this">{{it}} </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 红色方 -->
+    <view class="team-section">
+      <view class="team-header team-red">🔴 红色方</view>
+      <view
+        class="player-card card"
+        wx:for="{{redTeam}}"
+        wx:key="summoner_name"
+        bindtap="onPlayerTap"
+        data-key="{{item.champion.key}}"
+      >
+        <view class="player-row">
+          <image class="player-icon" src="{{item.champion.image}}" mode="aspectFill" />
+          <view class="player-info">
+            <view class="player-name">{{item.champion.name}}</view>
+            <view class="player-tags">
+              <text class="tag" wx:for="{{item.champion.tags}}" wx:for-item="t" wx:key="*this">{{t}}</text>
+            </view>
+          </view>
+          <view class="player-stats">
+            <view class="tier-tag tier-{{item.aram.tier}}" wx:if="{{item.aram.tier}}">{{item.aram.tier}}</view>
+            <view class="player-wr">{{item.aram.winrate}}</view>
+          </view>
+        </view>
+        <view class="player-detail" wx:if="{{expandedKey === item.champion.key}}">
+          <view class="detail-row" wx:if="{{item.aram.top_augments.length > 0}}">
+            <text class="detail-label">🔮 海克斯：</text>
+            <text class="detail-value" wx:for="{{item.aram.top_augments}}" wx:for-item="aug" wx:key="name">{{aug.name}} </text>
+          </view>
+          <view class="detail-row" wx:if="{{item.aram.core_items.length > 0}}">
+            <text class="detail-label">⚔️ 核心装：</text>
+            <text class="detail-value" wx:for="{{item.aram.core_items}}" wx:for-item="it" wx:key="*this">{{it}} </text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="card error-card" wx:if="{{error}}">
+    <view class="result-icon">⚠️</view>
+    <view class="result-text">{{error}}</view>
+  </view>
+</view>

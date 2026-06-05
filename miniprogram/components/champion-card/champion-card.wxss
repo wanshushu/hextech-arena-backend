@@ -1,0 +1,37 @@
+.champ-card {
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  text-align: center;
+}
+.champ-card:active {
+  opacity: 0.8;
+}
+.champ-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  margin: 0 auto 12rpx;
+  overflow: hidden;
+}
+.avatar-fallback {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--recommend));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #fff;
+}
+.champ-name {
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

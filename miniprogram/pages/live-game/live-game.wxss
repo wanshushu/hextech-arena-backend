@@ -1,0 +1,191 @@
+.header {
+  padding: 24rpx 24rpx 12rpx;
+}
+.title {
+  font-size: 36rpx;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent), var(--recommend));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.subtitle {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 6rpx;
+}
+
+/* 搜索区 */
+.search-section {
+  padding: 28rpx;
+}
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+.name-input {
+  flex: 2;
+  padding: 20rpx 24rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 28rpx;
+}
+.tag-sep {
+  font-size: 32rpx;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+.tag-input {
+  flex: 1;
+  padding: 20rpx 24rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 28rpx;
+}
+.query-btn {
+  width: 100%;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, var(--accent), var(--recommend));
+  color: var(--bg);
+  font-size: 30rpx;
+  font-weight: 700;
+  border: none;
+}
+
+/* 历史记录 */
+.history {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12rpx;
+}
+.history-label {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+.history-item {
+  font-size: 22rpx;
+  color: var(--accent);
+  background: rgba(0, 240, 255, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+/* 结果卡片 */
+.result-card {
+  text-align: center;
+  padding: 60rpx 28rpx;
+}
+.result-icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+}
+.result-text {
+  font-size: 30rpx;
+  margin-bottom: 8rpx;
+}
+.result-hint {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+.error-card {
+  text-align: center;
+  padding: 40rpx;
+}
+
+/* 游戏头部 */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 28rpx;
+}
+.game-mode {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--accent);
+}
+.game-info {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 队伍 */
+.team-section {
+  margin-bottom: 16rpx;
+}
+.team-header {
+  padding: 16rpx 28rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+.team-blue {
+  background: rgba(74, 144, 226, 0.15);
+  color: #4a90e2;
+}
+.team-red {
+  background: rgba(226, 74, 74, 0.15);
+  color: #e24a4a;
+}
+
+/* 玩家卡片 */
+.player-card {
+  padding: 20rpx 24rpx;
+  margin-bottom: 8rpx;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.player-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--border);
+}
+.player-info {
+  flex: 1;
+}
+.player-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 4rpx;
+}
+.player-tags {
+  display: flex;
+  gap: 6rpx;
+}
+.player-stats {
+  text-align: right;
+}
+.player-wr {
+  font-size: 24rpx;
+  color: var(--recommend);
+  margin-top: 6rpx;
+}
+
+/* 展开详情 */
+.player-detail {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--border);
+}
+.detail-row {
+  font-size: 24rpx;
+  margin-bottom: 8rpx;
+  line-height: 1.6;
+}
+.detail-label {
+  color: var(--accent);
+}
+.detail-value {
+  color: var(--text-secondary);
+}

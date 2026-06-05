@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/champion/detail/detail",
+    "pages/live-game/live-game",
+    "pages/items/items"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#0a0a0f",
+    "navigationBarTitleText": "海克斯大乱斗",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0a0a0f",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#888888",
+    "selectedColor": "#00f0ff",
+    "backgroundColor": "#12122a",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "梯度"
+      },
+      {
+        "pagePath": "pages/live-game/live-game",
+        "text": "实时"
+      },
+      {
+        "pagePath": "pages/items/items",
+        "text": "装备"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

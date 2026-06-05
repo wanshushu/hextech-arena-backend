@@ -82,6 +82,63 @@ def init_db():
         )
     """)
 
+    # ─── Data Dragon 数据表 ────────────────────────────────────────────────
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ddragon_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ddragon_champions (
+            key TEXT PRIMARY KEY,
+            id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            title TEXT DEFAULT '',
+            tags TEXT DEFAULT '',
+            partype TEXT DEFAULT '',
+            stats_json TEXT DEFAULT '{}',
+            spells_json TEXT DEFAULT '[]',
+            passive_json TEXT DEFAULT '{}',
+            image_url TEXT DEFAULT '',
+            image_loading TEXT DEFAULT '',
+            image_splash TEXT DEFAULT ''
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ddragon_items (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            plaintext TEXT DEFAULT '',
+            gold_total INTEGER DEFAULT 0,
+            gold_base INTEGER DEFAULT 0,
+            gold_sell INTEGER DEFAULT 0,
+            tags TEXT DEFAULT '',
+            stats_json TEXT DEFAULT '{}',
+            into_list TEXT DEFAULT '',
+            from_list TEXT DEFAULT '',
+            image_url TEXT DEFAULT ''
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ddragon_runes (
+            id INTEGER PRIMARY KEY,
+            tree_id INTEGER NOT NULL,
+            tree_name TEXT NOT NULL,
+            tree_icon TEXT DEFAULT '',
+            tier INTEGER DEFAULT 0,
+            slot_index INTEGER DEFAULT 0,
+            name TEXT NOT NULL,
+            icon_url TEXT DEFAULT '',
+            short_desc TEXT DEFAULT '',
+            long_desc TEXT DEFAULT ''
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -316,3 +373,204 @@ def get_all_augment_names() -> List[str]:
     result = [r["name"] for r in cursor.fetchall()]
     conn.close()
     return result
+
+
+# ─── Data Dragon CRUD ─────────────────────────────────────────────────────
+
+import json as _json
+
+
+def set_ddragon_meta(key: str, value: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR REPLACE INTO ddragon_meta (key, value) VALUES (?, ?)", (key, value))
+    conn.commit()
+    conn.close()
+
+
+def get_ddragon_meta(key: str) -> Optional[str]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT value FROM ddragon_meta WHERE key = ?", (key,))
+    row = cursor.fetchone()
+    conn.close()
+    return row["value"] if row else None
+
+
+def upsert_ddragon_champions(champions: Dict[str, Any]):
+    """批量写入 Data Dragon 英雄数据"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM ddragon_champions")
+    for key, c in champions.items():
+        cursor.execute("""
+            INSERT INTO ddragon_champions
+            (key, id, name, title, tags, partype, stats_json, spells_json, passive_json, image_url, image_loading, image_splash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            c["key"], c["id"], c["name"], c["title"],
+            ",".join(c.get("tags", [])),
+            c.get("partype", ""),
+            _json.dumps(c.get("stats", {}), ensure_ascii=False),
+            _json.dumps(c.get("spells", []), ensure_ascii=False),
+            _json.dumps(c.get("passive", {}), ensure_ascii=False),
+            c.get("image_url", ""),
+            c.get("image_loading", ""),
+            c.get("image_splash", ""),
+        ))
+    conn.commit()
+    conn.close()
+
+
+def upsert_ddragon_items(items: Dict[str, Any]):
+    """批量写入 Data Dragon 装备数据"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM ddragon_items")
+    for item_id, item in items.items():
+        cursor.execute("""
+            INSERT INTO ddragon_items
+            (id, name, description, plaintext, gold_total, gold_base, gold_sell, tags, stats_json, into_list, from_list, image_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            item_id, item["name"], item.get("description", ""),
+            item.get("plaintext", ""),
+            item.get("gold_total", 0), item.get("gold_base", 0), item.get("gold_sell", 0),
+            ",".join(item.get("tags", [])),
+            _json.dumps(item.get("stats", {}), ensure_ascii=False),
+            ",".join(item.get("into", [])),
+            ",".join(item.get("from", [])),
+            item.get("image_url", ""),
+        ))
+    conn.commit()
+    conn.close()
+
+
+def upsert_ddragon_runes(trees: List[Dict[str, Any]]):
+    """批量写入 Data Dragon 符文数据"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM ddragon_runes")
+    for tree in trees:
+        for slot_idx, slot in enumerate(tree.get("slots", [])):
+            for rune in slot.get("runes", []):
+                cursor.execute("""
+                    INSERT INTO ddragon_runes
+                    (id, tree_id, tree_name, tree_icon, tier, slot_index, name, icon_url, short_desc, long_desc)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    rune["id"], tree["id"], tree["name"], tree.get("icon_url", ""),
+                    0, slot_idx, rune["name"], rune.get("icon_url", ""),
+                    rune.get("short_desc", ""), rune.get("long_desc", ""),
+                ))
+    conn.commit()
+    conn.close()
+
+
+def get_ddragon_champions() -> List[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_champions ORDER BY name")
+    rows = cursor.fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        d = dict(row)
+        d["stats"] = _json.loads(d.get("stats_json", "{}"))
+        d["spells"] = _json.loads(d.get("spells_json", "[]"))
+        d["passive"] = _json.loads(d.get("passive_json", "{}"))
+        d["tags"] = d["tags"].split(",") if d["tags"] else []
+        del d["stats_json"], d["spells_json"], d["passive_json"]
+        result.append(d)
+    return result
+
+
+def get_ddragon_champion_by_key(key: str) -> Optional[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_champions WHERE key = ?", (key,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    d["stats"] = _json.loads(d.get("stats_json", "{}"))
+    d["spells"] = _json.loads(d.get("spells_json", "[]"))
+    d["passive"] = _json.loads(d.get("passive_json", "{}"))
+    d["tags"] = d["tags"].split(",") if d["tags"] else []
+    del d["stats_json"], d["spells_json"], d["passive_json"]
+    return d
+
+
+def get_ddragon_champion_by_id(champ_id: str) -> Optional[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_champions WHERE id = ?", (champ_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    d["stats"] = _json.loads(d.get("stats_json", "{}"))
+    d["spells"] = _json.loads(d.get("spells_json", "[]"))
+    d["passive"] = _json.loads(d.get("passive_json", "{}"))
+    d["tags"] = d["tags"].split(",") if d["tags"] else []
+    del d["stats_json"], d["spells_json"], d["passive_json"]
+    return d
+
+
+def get_ddragon_items() -> List[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_items ORDER BY gold_total DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        d = dict(row)
+        d["stats"] = _json.loads(d.get("stats_json", "{}"))
+        d["tags"] = d["tags"].split(",") if d["tags"] else []
+        d["into"] = d["into_list"].split(",") if d["into_list"] else []
+        d["from"] = d["from_list"].split(",") if d["from_list"] else []
+        del d["stats_json"], d["into_list"], d["from_list"]
+        result.append(d)
+    return result
+
+
+def get_ddragon_item_by_id(item_id: str) -> Optional[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_items WHERE id = ?", (item_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    d["stats"] = _json.loads(d.get("stats_json", "{}"))
+    d["tags"] = d["tags"].split(",") if d["tags"] else []
+    d["into"] = d["into_list"].split(",") if d["into_list"] else []
+    d["from"] = d["from_list"].split(",") if d["from_list"] else []
+    del d["stats_json"], d["into_list"], d["from_list"]
+    return d
+
+
+def get_ddragon_runes() -> List[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_runes ORDER BY tree_id, slot_index, id")
+    rows = cursor.fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        d = dict(row)
+        result.append(d)
+    return result
+
+
+def get_ddragon_runes_by_tree(tree_id: int) -> List[Dict]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ddragon_runes WHERE tree_id = ? ORDER BY slot_index, id", (tree_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]

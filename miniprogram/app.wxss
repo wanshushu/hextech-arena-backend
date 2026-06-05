@@ -1,0 +1,101 @@
+/* 全局样式 - 深色电竞主题 */
+page {
+  --bg: #0a0a0f;
+  --card: #12122a;
+  --border: #222222;
+  --t1: #FF3366;
+  --t2: #FFA94D;
+  --t3: #FFE066;
+  --t4: #69DB7C;
+  --t5: #74C0FC;
+  --accent: #00f0ff;
+  --recommend: #00ff88;
+  --warning: #FF3366;
+  --text: #ffffff;
+  --text-secondary: #888888;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 28rpx;
+}
+
+/* 通用卡片 */
+.card {
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+/* 梯度标签 */
+.tier-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.tier-T1 { background: var(--t1); color: #fff; }
+.tier-T2 { background: var(--t2); color: #000; }
+.tier-T3 { background: var(--t3); color: #000; }
+.tier-T4 { background: var(--t4); color: #000; }
+.tier-T5 { background: var(--t5); color: #000; }
+
+/* 标题 */
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 20rpx;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--accent);
+  margin-right: 8rpx;
+}
+
+/* 加载动画 */
+.loading {
+  text-align: center;
+  padding: 80rpx 0;
+  color: var(--text-secondary);
+}
+.spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20rpx;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 搜索框 */
+.search-bar {
+  padding: 0 24rpx 20rpx;
+}
+.search-bar input {
+  width: 100%;
+  padding: 20rpx 28rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 28rpx;
+}
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+  color: var(--text-secondary);
+}

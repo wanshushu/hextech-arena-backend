@@ -1,0 +1,53 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="title">🎯 海克斯大乱斗</view>
+    <view class="subtitle" wx:if="{{updateTime}}">更新: {{updateTime}}</view>
+  </view>
+
+  <!-- Tab 栏 -->
+  <scroll-view class="tabs" scroll-x enable-flex>
+    <view
+      class="tab {{currentTier === 'all' ? 'active' : ''}}"
+      bindtap="onTabTap"
+      data-tier="all"
+    >全部</view>
+    <view
+      wx:for="{{tiers}}"
+      wx:key="name"
+      class="tab {{currentTier === item.name ? 'active tier-bg-' + item.name : ''}}"
+      bindtap="onTabTap"
+      data-tier="{{item.name}}"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <input
+      placeholder="搜索英雄..."
+      placeholder-style="color: #888"
+      bindinput="onSearch"
+      value="{{searchText}}"
+    />
+  </view>
+
+  <!-- 英雄网格 -->
+  <view class="champ-grid" wx:if="{{filteredChampions.length > 0}}">
+    <champion-card
+      wx:for="{{filteredChampions}}"
+      wx:key="key"
+      champion="{{item}}"
+    />
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && filteredChampions.length === 0}}">
+    没有找到英雄
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text>加载中...</text>
+  </view>
+</view>

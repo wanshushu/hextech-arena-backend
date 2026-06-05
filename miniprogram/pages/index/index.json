@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "海克斯大乱斗",
+  "usingComponents": {
+    "champion-card": "/components/champion-card/champion-card"
+  }
+}

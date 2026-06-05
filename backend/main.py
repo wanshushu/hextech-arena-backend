@@ -30,10 +30,43 @@ from .database import (
     get_meta,
     upsert_global_augments,
     get_all_augment_names,
+    # Data Dragon
+    set_ddragon_meta,
+    get_ddragon_meta,
+    upsert_ddragon_champions,
+    upsert_ddragon_items,
+    upsert_ddragon_runes,
+    get_ddragon_champions,
+    get_ddragon_champion_by_key,
+    get_ddragon_champion_by_id,
+    get_ddragon_items,
+    get_ddragon_item_by_id,
+    get_ddragon_runes,
+    get_ddragon_runes_by_tree,
 )
+from . import ddragon
+from .riot_api import RiotAPI
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Riot API 配置（优先读环境变量，否则用默认值）
+RIOT_API_KEY = os.environ.get("RIOT_API_KEY", "RGAPI-5de719fd-c7b0-490f-8b9a-34c66b58467f")
+RIOT_REGION = os.environ.get("RIOT_REGION", "asia")
+RIOT_PLATFORM = os.environ.get("RIOT_PLATFORM", "kr")
+
+riot_client: Optional[RiotAPI] = None
+
+
+def get_riot_client() -> RiotAPI:
+    global riot_client
+    if riot_client is None:
+        riot_client = RiotAPI(
+            api_key=RIOT_API_KEY,
+            region=RIOT_REGION,
+            platform=RIOT_PLATFORM,
+        )
+    return riot_client
 
 app = FastAPI(title="HexTech Arena API", version="1.0.0")
 
@@ -407,3 +440,310 @@ async def get_champion_api(champ_id: str):
 async def force_refresh():
     asyncio.create_task(refresh_cache())
     return {"message": "Refresh started"}
+
+
+# ─── Data Dragon API ───────────────────────────────────────────────────────
+
+@app.get("/ddragon/version")
+async def ddragon_version():
+    """当前 Data Dragon 数据版本"""
+    version = get_ddragon_meta("ddragon_version")
+    updated = get_ddragon_meta("ddragon_updated_at")
+    return {"version": version, "updated_at": updated}
+
+
+@app.get("/ddragon/champions")
+async def ddragon_champions_list():
+    """所有英雄基础数据（来自 Data Dragon）"""
+    champions = get_ddragon_champions()
+    if not champions:
+        raise HTTPException(status_code=404, detail="Data Dragon data not loaded. Run refresh first.")
+    return {"champions": champions, "total": len(champions)}
+
+
+@app.get("/ddragon/champions/{key}")
+async def ddragon_champion_detail(key: str):
+    """单个英雄详情，合并 aramgg 统计数据 + Data Dragon 基础数据"""
+    # 先查 aramgg 统计数据（通过 key 匹配 id）
+    ddragon_champ = get_ddragon_champion_by_key(key)
+    if not ddragon_champ:
+        raise HTTPException(status_code=404, detail=f"Champion key {key} not found in Data Dragon")
+
+    # 用 ddragon 的 key（数字）去查 aramgg 数据，因为 aramgg 用数字 id
+    aramgg_champ = get_champion_by_id(key)
+
+    result = {
+        "key": key,
+        "id": ddragon_champ["id"],
+        "name": ddragon_champ["name"],
+        "title": ddragon_champ["title"],
+        "tags": ddragon_champ.get("tags", []),
+        "stats": ddragon_champ.get("stats", {}),
+        "spells": ddragon_champ.get("spells", []),
+        "passive": ddragon_champ.get("passive", {}),
+        "images": {
+            "icon": ddragon_champ.get("image_url", ""),
+            "loading": ddragon_champ.get("image_loading", ""),
+            "splash": ddragon_champ.get("image_splash", ""),
+        },
+    }
+
+    if aramgg_champ:
+        result["tier"] = aramgg_champ.get("tier", "")
+        result["winrate"] = aramgg_champ.get("winrate", "")
+        result["pickrate"] = aramgg_champ.get("pickrate", "")
+        result["top_augments"] = aramgg_champ.get("top_augments", [])
+        result["all_augments"] = aramgg_champ.get("all_augments", [])
+        result["core_items"] = aramgg_champ.get("core_items", [])
+        result["situational_items"] = aramgg_champ.get("situational_items", [])
+        result["starting_items"] = aramgg_champ.get("starting_items", [])
+    else:
+        result["tier"] = ""
+        result["winrate"] = ""
+        result["pickrate"] = ""
+
+    return result
+
+
+@app.get("/ddragon/items")
+async def ddragon_items_list(search: Optional[str] = Query(None)):
+    """装备数据（来自 Data Dragon）"""
+    items = get_ddragon_items()
+    if search:
+        items = [i for i in items if search.lower() in i["name"].lower()]
+    return {"items": items, "total": len(items)}
+
+
+@app.get("/ddragon/items/{item_id}")
+async def ddragon_item_detail(item_id: str):
+    """单个装备详情"""
+    item = get_ddragon_item_by_id(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Item {item_id} not found")
+    return item
+
+
+@app.get("/ddragon/runes")
+async def ddragon_runes_list():
+    """符文树数据"""
+    runes = get_ddragon_runes()
+    if not runes:
+        raise HTTPException(status_code=404, detail="Rune data not loaded.")
+
+    # 按符文树分组
+    trees = {}
+    for r in runes:
+        tid = r["tree_id"]
+        if tid not in trees:
+            trees[tid] = {
+                "tree_id": tid,
+                "tree_name": r["tree_name"],
+                "tree_icon": r["tree_icon"],
+                "slots": {},
+            }
+        si = r["slot_index"]
+        if si not in trees[tid]["slots"]:
+            trees[tid]["slots"][si] = []
+        trees[tid]["slots"][si].append({
+            "id": r["id"],
+            "name": r["name"],
+            "icon_url": r["icon_url"],
+            "short_desc": r["short_desc"],
+        })
+
+    # 转换 slots 为列表
+    result = []
+    for tid, tree in sorted(trees.items()):
+        tree["slots"] = [tree["slots"][k] for k in sorted(tree["slots"].keys())]
+        result.append(tree)
+
+    return {"trees": result, "total": len(result)}
+
+
+@app.post("/ddragon/refresh")
+async def ddragon_refresh():
+    """触发 Data Dragon 数据更新"""
+    asyncio.create_task(_refresh_ddragon())
+    return {"message": "Data Dragon refresh started"}
+
+
+async def _refresh_ddragon():
+    """后台任务：拉取 Data Dragon 数据"""
+    try:
+        logger.info("Starting Data Dragon refresh...")
+        version = await ddragon.fetch_latest_version()
+        logger.info(f"Latest Data Dragon version: {version}")
+
+        # 英雄
+        champions = await ddragon.fetch_champions(version)
+        upsert_ddragon_champions(champions)
+
+        # 装备
+        items = await ddragon.fetch_items(version)
+        upsert_ddragon_items(items)
+
+        # 符文
+        runes = await ddragon.fetch_runes(version)
+        upsert_ddragon_runes(runes)
+
+        # 更新元数据
+        set_ddragon_meta("ddragon_version", version)
+        set_ddragon_meta("ddragon_updated_at", datetime.now().isoformat())
+
+        logger.info(f"Data Dragon refresh completed: {len(champions)} champions, {len(items)} items, {len(runes)} rune entries")
+    except Exception as e:
+        logger.error(f"Data Dragon refresh failed: {e}")
+
+
+# ─── Riot API ──────────────────────────────────────────────────────────────
+
+@app.get("/riot/status")
+async def riot_status():
+    """检查 Riot API Key 状态"""
+    try:
+        client = get_riot_client()
+        # 测试一个简单请求
+        account = await client.get_summoner_by_name("Hide on bush", "KR1")
+        return {
+            "status": "ok",
+            "region": RIOT_REGION,
+            "platform": RIOT_PLATFORM,
+            "key_prefix": RIOT_API_KEY[:10] + "...",
+            "test_result": "ok" if account else "no_test_account",
+        }
+    except ValueError as e:
+        return {"status": "error", "message": str(e)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/riot/summoner/{name}/{tag}")
+async def riot_summoner(name: str, tag: str = "KR1"):
+    """
+    查询召唤师信息
+    示例: /riot/summoner/Hide on bush/KR1
+    """
+    client = get_riot_client()
+    try:
+        account = await client.get_summoner_by_name(name, tag)
+        if not account:
+            raise HTTPException(status_code=404, detail=f"Summoner {name}#{tag} not found")
+
+        summoner = await client.get_summoner_by_puuid(account["puuid"])
+        if not summoner:
+            raise HTTPException(status_code=404, detail="Summoner details not found")
+
+        # 获取英雄熟练度 Top 5
+        mastery = await client.get_champion_mastery(account["puuid"], count=5)
+
+        # 将 champion_id 映射到名字
+        ddragon_champs = get_ddragon_champions()
+        id_to_name = {c["key"]: c["name"] for c in ddragon_champs}
+        for m in mastery:
+            m["champion_name"] = id_to_name.get(m["champion_id"], f"Unknown({m['champion_id']})")
+
+        return {
+            "account": account,
+            "summoner": summoner,
+            "top_mastery": mastery,
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+
+@app.get("/riot/live-game/{name}/{tag}")
+async def riot_live_game(name: str, tag: str = "KR1"):
+    """
+    实时对局查询（核心功能！）
+    输入召唤师名#标签，返回当前对局10个人的英雄攻略
+
+    小程序用法：
+    1. 用户输入 "Hide on bush#KR1"
+    2. 返回当前 ARAM 对局中 10 个英雄的梯度、出装、海克斯推荐
+    3. 用户在开局前快速查看攻略
+    """
+    client = get_riot_client()
+    try:
+        # 1. 查召唤师
+        account = await client.get_summoner_by_name(name, tag)
+        if not account:
+            raise HTTPException(status_code=404, detail=f"Summoner {name}#{tag} not found")
+
+        # 2. 查当前对局
+        game = await client.get_current_game(account["puuid"])
+        if not game:
+            return {
+                "status": "not_in_game",
+                "summoner": name,
+                "message": f"{name} 当前不在对局中",
+            }
+
+        # 3. 为每个参与者补充英雄攻略数据
+        ddragon_champs = {c["key"]: c for c in get_ddragon_champions()}
+        enriched_participants = []
+
+        for p in game["participants"]:
+            champ_key = p["champion_id"]
+            dd_champ = ddragon_champs.get(champ_key, {})
+            aramgg_champ = get_champion_by_id(champ_key) or {}
+
+            enriched_participants.append({
+                "summoner_name": p["summoner_name"],
+                "team_id": p["team_id"],
+                "champion": {
+                    "key": champ_key,
+                    "id": dd_champ.get("id", ""),
+                    "name": dd_champ.get("name", f"未知({champ_key})"),
+                    "title": dd_champ.get("title", ""),
+                    "image": dd_champ.get("image_url", ""),
+                    "tags": dd_champ.get("tags", []),
+                },
+                "aram": {
+                    "tier": aramgg_champ.get("tier", ""),
+                    "winrate": aramgg_champ.get("winrate", ""),
+                    "pickrate": aramgg_champ.get("pickrate", ""),
+                    "top_augments": aramgg_champ.get("top_augments", [])[:3],
+                    "core_items": aramgg_champ.get("core_items", []),
+                    "situational_items": aramgg_champ.get("situational_items", []),
+                },
+            })
+
+        return {
+            "status": "in_game",
+            "game_mode": game["game_mode"],
+            "game_id": game["game_id"],
+            "participants": enriched_participants,
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=429, detail=str(e))
+
+
+@app.get("/riot/match-history/{name}/{tag}")
+async def riot_match_history(name: str, tag: str = "KR1", count: int = Query(5, ge=1, le=20)):
+    """
+    对局历史查询
+    返回最近 N 场 ARAM 对局的详情
+    """
+    client = get_riot_client()
+    try:
+        account = await client.get_summoner_by_name(name, tag)
+        if not account:
+            raise HTTPException(status_code=404, detail=f"Summoner {name}#{tag} not found")
+
+        match_ids = await client.get_match_ids(account["puuid"], count=count, queue_id=450)
+        if not match_ids:
+            return {"matches": [], "total": 0}
+
+        matches = []
+        for mid in match_ids[:count]:
+            detail = await client.get_match_detail(mid)
+            if detail:
+                matches.append(detail)
+
+        return {"matches": matches, "total": len(matches)}
+
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
