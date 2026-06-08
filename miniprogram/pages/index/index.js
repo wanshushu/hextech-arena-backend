@@ -28,28 +28,41 @@ Page({
   async loadData() {
     this.setData({ loading: true });
     try {
-      const data = await api.getTierList();
+      // 同时加载梯度表和 Data Dragon 英雄数据
+      const [tierData, ddData] = await Promise.all([
+        api.getTierList(),
+        api.getChampions(),
+      ]);
+
+      // 建立 id → ddragon 数据的映射
+      const ddMap = {};
+      (ddData.champions || []).forEach(c => {
+        ddMap[c.id] = c;   // id: "Aatrox"
+        ddMap[c.key] = c;   // key: "266"
+      });
+
       const allChampions = [];
 
-      // 合并所有梯度
       for (const tier of ['T1', 'T2', 'T3', 'T4', 'T5']) {
-        const champs = data.tiers[tier] || [];
+        const champs = tierData.tiers[tier] || [];
         champs.forEach(c => {
           c.tier = tier;
-          // 尝试从预加载数据中补充 image_url
-          const cached = this._findCachedChamp(c.id);
-          if (cached) {
-            c.image_url = cached.image_url;
-            c.key = cached.key;
+          // 用 id 或 key 去匹配 ddragon 数据
+          const dd = ddMap[c.id] || ddMap[String(c.id)];
+          if (dd) {
+            c.image_url = dd.image_url;
+            c.key = dd.key;
           }
           allChampions.push(c);
         });
       }
 
-      // 格式化时间
+      // 缓存到全局
+      getApp().globalData.champions = ddData.champions;
+
       let updateTime = '';
-      if (data.updated_at) {
-        const d = new Date(data.updated_at);
+      if (tierData.updated_at) {
+        const d = new Date(tierData.updated_at);
         updateTime = `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
       }
 
@@ -64,12 +77,6 @@ Page({
       this.setData({ loading: false });
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
-  },
-
-  _findCachedChamp(id) {
-    const champs = getApp().globalData.champions;
-    if (!champs) return null;
-    return champs.find(c => c.id === id || c.key === String(id));
   },
 
   onTabTap(e) {
