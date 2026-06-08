@@ -11,7 +11,8 @@ if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
 # 设置环境变量
-os.environ['RIOT_API_KEY'] = 'RGAPI-5de719fd-c7b0-490f-8b9a-34c66b58467f'
+# Riot API Key 从环境变量读取，不要硬编码
+# os.environ['RIOT_API_KEY'] = 'your_key_here'
 
 # 导入 FastAPI 应用
 from backend.main import app

@@ -9,6 +9,7 @@ struct Champion: Codable, Identifiable, Hashable {
     let pickrate: String
     let patch: String?
     var topAugments: [Augment]?
+    var allAugments: [Augment]?
     var coreItems: [String]?
     var situationalItems: [String]?
     var startingItems: [String]?
@@ -16,6 +17,7 @@ struct Champion: Codable, Identifiable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id, name, title, tier, winrate, pickrate, patch
         case topAugments = "top_augments"
+        case allAugments = "all_augments"
         case coreItems = "core_items"
         case situationalItems = "situational_items"
         case startingItems = "starting_items"

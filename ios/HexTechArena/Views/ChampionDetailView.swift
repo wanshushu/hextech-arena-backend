@@ -115,7 +115,7 @@ struct ChampionDetailView: View {
                         }
 
                         // NEW: Augment Selector
-                        AugmentSelectorView(championId: championId, championAugments: champ.topAugments ?? [])
+                        AugmentSelectorView(championId: championId, championAugments: champ.allAugments ?? champ.topAugments ?? [])
 
                         if let patch = champ.patch, !patch.isEmpty {
                             HStack {

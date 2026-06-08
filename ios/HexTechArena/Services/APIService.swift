@@ -21,8 +21,8 @@ enum APIError: Error, LocalizedError {
 actor APIService {
     static let shared = APIService()
 
-    // ⚠️ 修改为你电脑的 IP 地址
-    private let baseURL = "http://localhost:18789"
+    // ⚠️ 修改为你电脑的 IP 地址（如果模拟器无法访问 localhost）
+    private let baseURL = "http://localhost:8000"
 
     private var jsonDecoder: JSONDecoder {
         let decoder = JSONDecoder()

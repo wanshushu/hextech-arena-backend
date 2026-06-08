@@ -12,8 +12,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .database import (
     init_db,
@@ -50,8 +51,8 @@ from .riot_api import RiotAPI
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Riot API 配置（优先读环境变量，否则用默认值）
-RIOT_API_KEY = os.environ.get("RIOT_API_KEY", "RGAPI-5de719fd-c7b0-490f-8b9a-34c66b58467f")
+# Riot API 配置（仅从环境变量读取，不硬编码）
+RIOT_API_KEY = os.environ.get("RIOT_API_KEY", "")
 RIOT_REGION = os.environ.get("RIOT_REGION", "asia")
 RIOT_PLATFORM = os.environ.get("RIOT_PLATFORM", "kr")
 
@@ -60,6 +61,8 @@ riot_client: Optional[RiotAPI] = None
 
 def get_riot_client() -> RiotAPI:
     global riot_client
+    if not RIOT_API_KEY:
+        raise ValueError("Riot API Key 未配置，请在环境变量中设置 RIOT_API_KEY")
     if riot_client is None:
         riot_client = RiotAPI(
             api_key=RIOT_API_KEY,
@@ -70,13 +73,60 @@ def get_riot_client() -> RiotAPI:
 
 app = FastAPI(title="HexTech Arena API", version="1.0.0")
 
+# ─── 安全配置 ─────────────────────────────────────────────────────────────
+
+# 允许的来源（小程序域名 + 本地开发）
+ALLOWED_ORIGINS = [
+    "https://servicewechat.com",       # 微信小程序
+    "https://wx.qq.com",               # 微信
+    "http://localhost:8080",            # 本地开发
+    "http://127.0.0.1:8080",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+# ─── 简易速率限制 ─────────────────────────────────────────────────────────
+_rate_limit_store: Dict[str, list] = {}
+RATE_LIMIT_WINDOW = 60       # 秒
+RATE_LIMIT_MAX = 60          # 每窗口最大请求数（普通接口）
+RATE_LIMIT_RIOT_MAX = 10     # Riot API 每窗口最大请求数
+
+
+def _check_rate_limit(ip: str, limit: int = RATE_LIMIT_MAX) -> bool:
+    """检查速率限制，返回 True 表示允许"""
+    now = time.time()
+    if ip not in _rate_limit_store:
+        _rate_limit_store[ip] = []
+    # 清理过期记录
+    _rate_limit_store[ip] = [t for t in _rate_limit_store[ip] if now - t < RATE_LIMIT_WINDOW]
+    if len(_rate_limit_store[ip]) >= limit:
+        return False
+    _rate_limit_store[ip].append(now)
+    return True
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    # 健康检查不限速
+    if request.url.path in ("/", "/health"):
+        return await call_next(request)
+
+    ip = request.client.host if request.client else "unknown"
+    is_riot = request.url.path.startswith("/riot/")
+    limit = RATE_LIMIT_RIOT_MAX if is_riot else RATE_LIMIT_MAX
+
+    if not _check_rate_limit(ip, limit):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "请求过于频繁，请稍后再试"},
+        )
+    return await call_next(request)
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -600,9 +650,10 @@ async def _refresh_ddragon():
 @app.get("/riot/status")
 async def riot_status():
     """检查 Riot API Key 状态"""
+    if not RIOT_API_KEY:
+        return {"status": "not_configured", "message": "Riot API Key 未配置"}
     try:
         client = get_riot_client()
-        # 测试一个简单请求
         account = await client.get_summoner_by_name("Hide on bush", "KR1")
         return {
             "status": "ok",
