@@ -47,6 +47,7 @@ from .database import (
 )
 from . import ddragon
 from .riot_api import RiotAPI
+from . import ocr
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -928,3 +929,64 @@ async def riot_match_history(name: str, tag: str = "KR1", count: int = Query(5, 
 
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
+
+
+# ─── 队伍组合分析 ──────────────────────────────────────────────────────────
+
+@app.post("/team/analyze-by-names")
+async def team_analyze_by_names(request: Request):
+    """
+    根据英雄名字列表分析队伍组合
+
+    请求体：
+    {
+        "names": ["暗裔剑魔", "复仇焰魂", "荆棘之兴", "不屈之枪", "星籁歌姬"]
+    }
+    """
+    body = await request.json()
+    names = body.get("names", [])
+
+    if not names:
+        raise HTTPException(status_code=400, detail="需要 names 参数")
+
+    # 从 Data Dragon 查英雄数据
+    ddragon_champs = get_ddragon_champions()
+    name_map = {c["name"]: c for c in ddragon_champs}
+
+    # 从 aramgg 查统计数据
+    champions = []
+    for name in names:
+        dd = name_map.get(name)
+        if dd:
+            aramgg = get_champion_by_id(dd["key"]) or {}
+            champions.append({
+                "key": dd["key"],
+                "name": dd["name"],
+                "title": dd.get("title", ""),
+                "tags": dd.get("tags", []),
+                "image_url": dd.get("image_url", ""),
+                "tier": aramgg.get("tier", ""),
+                "winrate": aramgg.get("winrate", ""),
+            })
+
+    if not champions:
+        return {"error": "未找到匹配的英雄", "matched": 0}
+
+    # 分析（默认都放蓝色方）
+    analysis = ocr.analyze_team_comp(champions, [])
+
+    return {
+        "champions": champions,
+        "analysis": analysis,
+        "matched": len(champions),
+    }
+
+
+@app.get("/team/champion-names")
+async def get_champion_names():
+    """获取所有英雄名字列表（用于前端模糊匹配）"""
+    champs = get_ddragon_champions()
+    return {
+        "names": [{"name": c["name"], "key": c["key"]} for c in champs if c.get("name")],
+        "total": len(champs),
+    }

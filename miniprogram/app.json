@@ -4,7 +4,8 @@
     "pages/champion/detail/detail",
     "pages/augment/augment",
     "pages/live-game/live-game",
-    "pages/items/items"
+    "pages/items/items",
+    "pages/team/team"
   ],
   "window": {
     "navigationBarBackgroundColor": "#0a0a0f",
@@ -22,6 +23,10 @@
       {
         "pagePath": "pages/index/index",
         "text": "梯度"
+      },
+      {
+        "pagePath": "pages/team/team",
+        "text": "阵容"
       },
       {
         "pagePath": "pages/live-game/live-game",

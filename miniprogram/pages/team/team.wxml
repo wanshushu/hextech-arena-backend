@@ -1,0 +1,111 @@
+<view class="container">
+  <view class="header">
+    <view class="title">⚔️ 队伍组合分析</view>
+    <view class="subtitle">截图识别阵容，分析优劣势</view>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="card action-card">
+    <view class="action-btn" bindtap="onCapture">
+      <text class="action-icon">📷</text>
+      <text class="action-text">拍照识别</text>
+    </view>
+    <view class="action-btn" bindtap="onPickImage">
+      <text class="action-icon">🖼</text>
+      <text class="action-text">从相册选</text>
+    </view>
+  </view>
+
+  <!-- 预览图片 -->
+  <view class="card" wx:if="{{imagePath}}">
+    <image class="preview-img" src="{{imagePath}}" mode="widthFix" />
+    <view class="ocr-status" wx:if="{{ocrStatus}}">
+      <text>{{ocrStatus}}</text>
+    </view>
+  </view>
+
+  <!-- 识别结果：英雄列表 -->
+  <view class="card" wx:if="{{recognizedNames.length > 0}}">
+    <view class="section-title">🎯 识别到的英雄 ({{recognizedNames.length}})</view>
+    <view class="names-list">
+      <view class="name-tag" wx:for="{{recognizedNames}}" wx:key="*this">
+        {{item}}
+        <text class="name-remove" bindtap="onRemoveName" data-index="{{index}}">×</text>
+      </view>
+    </view>
+    <button class="analyze-btn" bindtap="onAnalyze">开始分析</button>
+  </view>
+
+  <!-- 分析结果 -->
+  <view wx:if="{{result}}">
+    <view class="card">
+      <view class="section-title">📊 阵容构成</view>
+      <view class="comp-grid">
+        <view class="comp-item">
+          <text class="comp-label">前排</text>
+          <text class="comp-value">{{result.analysis.blue.comp['前排']}}</text>
+        </view>
+        <view class="comp-item">
+          <text class="comp-label">后排</text>
+          <text class="comp-value">{{result.analysis.blue.comp['后排']}}</text>
+        </view>
+        <view class="comp-item">
+          <text class="comp-label">刺客</text>
+          <text class="comp-value">{{result.analysis.blue.comp['刺客']}}</text>
+        </view>
+        <view class="comp-item">
+          <text class="comp-label">辅助</text>
+          <text class="comp-value">{{result.analysis.blue.comp['辅助']}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 英雄列表 -->
+    <view class="card">
+      <view class="section-title">👥 英雄详情</view>
+      <view class="hero-list">
+        <view class="hero-item" wx:for="{{result.champions}}" wx:key="name">
+          <image class="hero-icon" src="{{item.image_url}}" mode="aspectFill" />
+          <view class="hero-info">
+            <view class="hero-name">{{item.name}}</view>
+            <view class="hero-tags">
+              <text class="tag" wx:for="{{item.tags}}" wx:for-item="t" wx:key="*this">{{t}}</text>
+            </view>
+          </view>
+          <view class="hero-stats">
+            <view class="tier-tag tier-{{item.tier}}">{{item.tier}}</view>
+            <text class="hero-wr">{{item.winrate}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 优劣势 -->
+    <view class="card" wx:if="{{result.analysis.blue.strengths.length > 0}}">
+      <view class="section-title">✅ 优势</view>
+      <view class="point-list">
+        <text class="point good" wx:for="{{result.analysis.blue.strengths}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{result.analysis.blue.weaknesses.length > 0}}">
+      <view class="section-title">⚠️ 劣势</view>
+      <view class="point-list">
+        <text class="point bad" wx:for="{{result.analysis.blue.weaknesses}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 综合评分 -->
+    <view class="card score-card">
+      <view class="score-label">综合评分</view>
+      <view class="score-value">{{result.analysis.blue.avg_tier_score}}</view>
+      <view class="score-sub">平均梯队分 (满分5)</view>
+    </view>
+  </view>
+
+  <!-- 手动输入入口 -->
+  <view class="card manual-card">
+    <text class="manual-text">识别不准？</text>
+    <button class="manual-btn" bindtap="onManualInput">手动输入英雄名</button>
+  </view>
+</view>
