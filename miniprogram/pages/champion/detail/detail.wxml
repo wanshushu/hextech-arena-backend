@@ -35,6 +35,18 @@
     </view>
   </view>
 
+  <!-- 海克斯推荐入口 -->
+  <view class="augment-entry card" bindtap="goAugment">
+    <view class="augment-entry-left">
+      <text class="augment-entry-icon">🔮</text>
+      <view>
+        <view class="augment-entry-title">海克斯智能推荐</view>
+        <view class="augment-entry-desc">输入系统给的3个海克斯，AI推荐最优选择</view>
+      </view>
+    </view>
+    <text class="augment-entry-arrow">›</text>
+  </view>
+
   <!-- 技能 -->
   <view class="card" wx:if="{{champion.spells.length > 0}}">
     <view class="section-title">📖 技能</view>

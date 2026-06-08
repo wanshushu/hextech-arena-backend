@@ -492,6 +492,136 @@ async def force_refresh():
     return {"message": "Refresh started"}
 
 
+# ─── 海克斯推荐 API ─────────────────────────────────────────────────────────
+
+@app.post("/augment/recommend")
+async def augment_recommend(request: Request):
+    """
+    海克斯强化智能推荐
+
+    请求体：
+    {
+        "champion_key": "63",           // 英雄 key
+        "level": 7,                     // 当前等级 (3/7/11/15)
+        "available": ["炼狱导管", "咏叹奏鸣", "祖母的辣椒油"],  // 系统给的3个选项
+        "selected": ["缩小引擎"]        // 之前已经选过的海克斯
+    }
+
+    返回：
+    {
+        "recommendation": "炼狱导管",
+        "reason": "该英雄最高胜率海克斯",
+        "analysis": [
+            {"name": "炼狱导管", "winrate": "62.17%", "tier": "T1", "score": 95, "reason": "胜率最高"},
+            {"name": "咏叹奏鸣", "winrate": "57.27%", "tier": "T1", "score": 80, "reason": "高胜率"},
+            {"name": "祖母的辣椒油", "winrate": "55.10%", "tier": "T2", "score": 65, "reason": "中等胜率"}
+        ],
+        "refresh_advice": {
+            "should_refresh": true,
+            "reason": "最差选项胜率偏低，建议刷新",
+            "worst": "祖母的辣椒油"
+        }
+    }
+    """
+    body = await request.json()
+    champion_key = body.get("champion_key", "")
+    level = body.get("level", 7)
+    available = body.get("available", [])
+    selected = body.get("selected", [])
+
+    if not champion_key or not available:
+        raise HTTPException(status_code=400, detail="需要 champion_key 和 available 参数")
+
+    # 获取英雄的海克斯数据
+    champ = get_champion_by_id(champion_key)
+    if not champ:
+        raise HTTPException(status_code=404, detail=f"英雄 {champion_key} 未找到")
+
+    # 构建海克斯胜率查找表
+    augments_data = {}
+    for aug in champ.get("all_augments", []) + champ.get("top_augments", []):
+        name = aug.get("name", "")
+        if name:
+            augments_data[name] = {
+                "winrate": aug.get("winrate", ""),
+                "tier": aug.get("tier", ""),
+                "pickrate": aug.get("pickrate", ""),
+            }
+
+    # 分析每个可选海克斯
+    analysis = []
+    for aug_name in available:
+        data = augments_data.get(aug_name, {})
+        wr_str = data.get("winrate", "0%").replace("%", "").replace(":", "0")
+        try:
+            wr = float(wr_str)
+        except:
+            wr = 0
+
+        tier = data.get("tier", "")
+
+        # 计算得分（0-100）
+        score = 0
+        if wr > 0:
+            # 基础分：胜率映射到 0-80 分
+            score = min(80, max(0, (wr - 45) * 4))
+            # 梯度加分
+            tier_bonus = {"T1": 20, "T2": 10, "T3": 5, "T4": 0, "T5": -5}
+            score += tier_bonus.get(tier, 0)
+
+        # 已选海克斯去重惩罚
+        if aug_name in selected:
+            score = -1
+
+        reason = ""
+        if score >= 80:
+            reason = "⭐ 强烈推荐"
+        elif score >= 60:
+            reason = "✅ 推荐"
+        elif score >= 40:
+            reason = "一般"
+        elif score >= 0:
+            reason = "不推荐"
+        else:
+            reason = "已选过"
+
+        analysis.append({
+            "name": aug_name,
+            "winrate": data.get("winrate", "无数据"),
+            "tier": tier,
+            "score": round(score),
+            "reason": reason,
+            "pickrate": data.get("pickrate", ""),
+        })
+
+    # 按得分排序
+    analysis.sort(key=lambda x: x["score"], reverse=True)
+
+    # 推荐
+    recommendation = analysis[0]["name"] if analysis else ""
+    best_score = analysis[0]["score"] if analysis else 0
+    worst_score = analysis[-1]["score"] if analysis else 0
+
+    # 刷新建议
+    should_refresh = False
+    refresh_reason = ""
+    if len(analysis) >= 2:
+        wr_diff = best_score - worst_score
+        if wr_diff > 15 and worst_score < 50:
+            should_refresh = True
+            refresh_reason = f"「{analysis[-1]['name']}」表现较差，建议刷新试试"
+
+    return {
+        "recommendation": recommendation,
+        "analysis": analysis,
+        "refresh_advice": {
+            "should_refresh": should_refresh,
+            "reason": refresh_reason,
+            "worst": analysis[-1]["name"] if analysis else "",
+        },
+    }
+
+
 # ─── Data Dragon API ───────────────────────────────────────────────────────
 
 @app.get("/ddragon/version")

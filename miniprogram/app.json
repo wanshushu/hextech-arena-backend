@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/champion/detail/detail",
+    "pages/augment/augment",
     "pages/live-game/live-game",
     "pages/items/items"
   ],

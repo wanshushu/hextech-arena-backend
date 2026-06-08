@@ -1,0 +1,221 @@
+/* 英雄信息栏 */
+.hero-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 24rpx;
+}
+.hero-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--accent);
+}
+.hero-name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+/* 等级选择 */
+.level-row {
+  display: flex;
+  gap: 12rpx;
+}
+.level-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+  background: var(--bg);
+  border: 1rpx solid var(--border);
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+.level-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+/* 已选海克斯 */
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.selected-tag {
+  background: rgba(0, 255, 136, 0.15);
+  border: 1rpx solid var(--recommend);
+  border-radius: 8rpx;
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  color: var(--recommend);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.remove-btn {
+  font-size: 28rpx;
+  color: var(--warning);
+  padding: 0 4rpx;
+}
+
+/* 输入框 */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+.aug-input {
+  padding: 20rpx 24rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 28rpx;
+}
+.add-row {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+.flex-1 {
+  flex: 1;
+}
+.add-btn {
+  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 26rpx;
+  font-weight: 600;
+  border: none;
+  min-width: 100rpx;
+}
+
+/* 推荐按钮 */
+.recommend-btn {
+  width: 100%;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #FF3366, #FF6699);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+  border: none;
+}
+
+/* 结果卡片 */
+.result-card {
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), rgba(0, 240, 255, 0.1));
+  border-color: var(--accent);
+}
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+.result-icon {
+  font-size: 32rpx;
+}
+.result-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--accent);
+}
+.result-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--recommend);
+}
+
+/* 分析列表 */
+.analysis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.analysis-item {
+  background: var(--bg);
+  border: 1rpx solid var(--border);
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.analysis-item.recommended {
+  border-color: var(--recommend);
+  background: rgba(0, 255, 136, 0.05);
+}
+.analysis-rank {
+  font-size: 24rpx;
+  font-weight: 700;
+  width: 50rpx;
+  text-align: center;
+}
+.analysis-info {
+  flex: 1;
+}
+.analysis-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  margin-bottom: 4rpx;
+}
+.analysis-meta {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.analysis-wr {
+  font-size: 22rpx;
+  color: var(--recommend);
+}
+.analysis-score {
+  text-align: right;
+  min-width: 120rpx;
+}
+.score-bar {
+  width: 100rpx;
+  height: 8rpx;
+  background: var(--border);
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 4rpx;
+}
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--warning), var(--recommend));
+  border-radius: 4rpx;
+}
+.score-text {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+.analysis-reason {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  min-width: 100rpx;
+  text-align: right;
+}
+
+/* 刷新建议 */
+.refresh-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: rgba(255, 51, 102, 0.1);
+  border-color: var(--warning);
+}
+.refresh-icon {
+  font-size: 36rpx;
+}
+.refresh-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--warning);
+}

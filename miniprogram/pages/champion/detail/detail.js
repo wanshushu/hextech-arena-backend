@@ -42,6 +42,15 @@ Page({
     }
   },
 
+  goAugment() {
+    const key = this.data.champion?.key;
+    if (key) {
+      wx.navigateTo({
+        url: `/pages/augment/augment?key=${key}`,
+      });
+    }
+  },
+
   onShareAppMessage() {
     const c = this.data.champion;
     return {

@@ -1,0 +1,124 @@
+<view class="container">
+  <!-- 英雄信息 -->
+  <view class="hero-bar card" wx:if="{{champion}}">
+    <image class="hero-icon" src="{{champion.image_url}}" mode="aspectFill" />
+    <view class="hero-name">{{champion.name}}</view>
+    <view class="tier-tag tier-{{champion.tier}}">{{champion.tier}}</view>
+  </view>
+
+  <!-- 等级选择 -->
+  <view class="card">
+    <view class="section-title">📊 当前等级</view>
+    <view class="level-row">
+      <view
+        wx:for="{{levels}}"
+        wx:key="*this"
+        class="level-btn {{currentLevel === item ? 'active' : ''}}"
+        bindtap="onLevelTap"
+        data-level="{{item}}"
+      >{{item}}级</view>
+    </view>
+  </view>
+
+  <!-- 已选海克斯 -->
+  <view class="card" wx:if="{{selected.length > 0}}">
+    <view class="section-title">✅ 已选海克斯 ({{selected.length}})</view>
+    <view class="selected-list">
+      <view class="selected-tag" wx:for="{{selected}}" wx:key="*this">
+        {{item}}
+        <text class="remove-btn" bindtap="onRemoveSelected" data-index="{{index}}">×</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 输入3个可选海克斯 -->
+  <view class="card">
+    <view class="section-title">🎯 系统给的3个海克斯</view>
+    <view class="input-group">
+      <input
+        class="aug-input"
+        placeholder="海克斯 1"
+        value="{{aug1}}"
+        bindinput="onAug1Input"
+      />
+      <input
+        class="aug-input"
+        placeholder="海克斯 2"
+        value="{{aug2}}"
+        bindinput="onAug2Input"
+      />
+      <input
+        class="aug-input"
+        placeholder="海克斯 3"
+        value="{{aug3}}"
+        bindinput="onAug3Input"
+      />
+    </view>
+    <button class="recommend-btn" bindtap="onRecommend" loading="{{loading}}">
+      🔮 获取推荐
+    </button>
+  </view>
+
+  <!-- 快捷添加已选海克斯 -->
+  <view class="card">
+    <view class="section-title">➕ 添加已选海克斯</view>
+    <view class="add-row">
+      <input
+        class="aug-input flex-1"
+        placeholder="输入已选的海克斯名字"
+        value="{{newSelected}}"
+        bindinput="onNewSelectedInput"
+      />
+      <button class="add-btn" bindtap="onAddSelected">添加</button>
+    </view>
+  </view>
+
+  <!-- 推荐结果 -->
+  <view wx:if="{{result}}">
+    <!-- 推荐 -->
+    <view class="card result-card">
+      <view class="result-header">
+        <text class="result-icon">⭐</text>
+        <text class="result-title">推荐选择</text>
+      </view>
+      <view class="result-name">{{result.recommendation}}</view>
+    </view>
+
+    <!-- 详细分析 -->
+    <view class="card">
+      <view class="section-title">📊 详细分析</view>
+      <view class="analysis-list">
+        <view
+          class="analysis-item {{item.name === result.recommendation ? 'recommended' : ''}}"
+          wx:for="{{result.analysis}}"
+          wx:key="name"
+        >
+          <view class="analysis-rank">
+            <text wx:if="{{item.name === result.recommendation}}">⭐</text>
+            <text wx:else>#{{index + 1}}</text>
+          </view>
+          <view class="analysis-info">
+            <view class="analysis-name">{{item.name}}</view>
+            <view class="analysis-meta">
+              <text class="tier-tag tier-{{item.tier}}" wx:if="{{item.tier}}">{{item.tier}}</text>
+              <text class="analysis-wr">{{item.winrate}}</text>
+            </view>
+          </view>
+          <view class="analysis-score">
+            <view class="score-bar">
+              <view class="score-fill" style="width: {{item.score}}%"></view>
+            </view>
+            <text class="score-text">{{item.score}}分</text>
+          </view>
+          <view class="analysis-reason">{{item.reason}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 刷新建议 -->
+    <view class="card refresh-card" wx:if="{{result.refresh_advice.should_refresh}}">
+      <view class="refresh-icon">🔄</view>
+      <view class="refresh-text">{{result.refresh_advice.reason}}</view>
+    </view>
+  </view>
+</view>
