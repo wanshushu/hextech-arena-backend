@@ -76,11 +76,8 @@
   gap: 8rpx;
   margin-top: 12rpx;
 }
-.stat-chip {
-  font-size: 20rpx;
-  background: var(--bg);
-  border: 1rpx solid var(--border);
-  border-radius: 8rpx;
-  padding: 4rpx 12rpx;
+.stats-text {
+  font-size: 22rpx;
   color: var(--recommend);
+  line-height: 1.5;
 }

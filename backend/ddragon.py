@@ -94,8 +94,23 @@ async def fetch_items(version: str, lang: str = "zh_CN") -> Dict[str, Any]:
     for item_id, item in raw["data"].items():
         gold = item.get("gold", {})
         stats = item.get("stats", {})
-        # 过滤掉没有实际购买价值的物品
-        if not gold.get("purchasable", False) and gold.get("total", 0) == 0:
+        maps = item.get("maps", {})
+
+        # 过滤条件：
+        # 1. 必须可购买
+        if not gold.get("purchasable", False):
+            continue
+        # 2. 必须在 ARAM 地图（map 12）可用
+        if not maps.get("12", False):
+            continue
+        # 3. 过滤掉竞技场模式专属装备（价格异常高）
+        if gold.get("total", 0) > 5000:
+            continue
+        # 4. 过滤掉合成中间件（没有最终价格的）
+        if gold.get("total", 0) <= 0:
+            continue
+        # 5. 过滤空名字
+        if not item.get("name", "").strip():
             continue
 
         items[item_id] = {
@@ -107,14 +122,13 @@ async def fetch_items(version: str, lang: str = "zh_CN") -> Dict[str, Any]:
             "gold_base": gold.get("base", 0),
             "gold_sell": gold.get("sell", 0),
             "tags": item.get("tags", []),
-            "maps": item.get("maps", {}),
             "stats": _extract_stats(stats),
             "into": item.get("into", []),
             "from": item.get("from", []),
             "image_url": f"{DD_BASE}/cdn/{version}/img/item/{item_id}.png",
         }
 
-    logger.info(f"Fetched {len(items)} items")
+    logger.info(f"Fetched {len(items)} items (ARAM available)")
     return items
 
 

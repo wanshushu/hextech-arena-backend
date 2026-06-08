@@ -39,8 +39,8 @@
         </view>
         <view class="item-price">{{item.gold_total}}g</view>
       </view>
-      <view class="item-stats" wx:if="{{item.statsKeys.length > 0}}">
-        <text class="stat-chip" wx:for="{{item.statsKeys}}" wx:for-item="sk" wx:key="*this">{{sk}} +{{item.stats[sk]}}</text>
+      <view class="item-stats" wx:if="{{item.statsText}}">
+        <text class="stats-text">{{item.statsText}}</text>
       </view>
     </view>
   </view>

@@ -22,9 +22,17 @@ Page({
     try {
       const data = await api.getItems();
       const items = (data.items || []).map(item => {
-        // 提取有意义的属性 key
-        const statsKeys = Object.keys(item.stats || {});
-        return { ...item, statsKeys };
+        const stats = item.stats || {};
+        // 格式化属性显示
+        const statsText = Object.entries(stats)
+          .map(([k, v]) => {
+            if (typeof v === 'number' && v < 1 && v > 0) {
+              return `${k} ${Math.round(v * 100)}%`;
+            }
+            return `${k} +${v}`;
+          })
+          .join(' | ');
+        return { ...item, statsText };
       });
       this.setData({ allItems: items, loading: false });
       this.filterAndSort();
