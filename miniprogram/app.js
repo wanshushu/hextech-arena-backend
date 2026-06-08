@@ -1,7 +1,7 @@
 App({
   globalData: {
-    // API 地址（开发时用本地，上线后切 Railway）
-    apiBase: 'https://web-production-fa0e7.up.railway.app',
+    // API 地址
+    apiBase: 'https://hextech-arena-backend.onrender.com',
     // 开发时可切换为：
     // apiBase: 'http://127.0.0.1:8000',
 
