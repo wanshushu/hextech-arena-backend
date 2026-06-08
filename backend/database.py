@@ -522,7 +522,12 @@ def get_ddragon_champion_by_id(champ_id: str) -> Optional[Dict]:
 def get_ddragon_items() -> List[Dict]:
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM ddragon_items ORDER BY gold_total DESC")
+    # 过滤：只保留可购买的、价格正常的装备（排除竞技场等特殊模式）
+    cursor.execute("""
+        SELECT * FROM ddragon_items
+        WHERE gold_total > 0 AND gold_total <= 5000
+        ORDER BY gold_total DESC
+    """)
     rows = cursor.fetchall()
     conn.close()
     result = []
