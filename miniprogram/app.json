@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/champion/detail/detail",
     "pages/augment/augment",
+    "pages/compare/compare",
     "pages/live-game/live-game",
     "pages/items/items",
     "pages/team/team"

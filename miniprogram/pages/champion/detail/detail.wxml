@@ -16,6 +16,9 @@
           <text class="tag" wx:for="{{champion.tags}}" wx:key="*this">{{item}}</text>
         </view>
       </view>
+      <view class="fav-btn {{isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">
+        <text>{{isFavorite ? '★' : '☆'}}</text>
+      </view>
     </view>
   </view>
 

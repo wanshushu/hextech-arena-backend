@@ -8,12 +8,15 @@ const TIER_COLORS = {
   T5: '#74C0FC',
 };
 
+const FAVORITES_KEY = 'favorite_champions';
+
 Page({
   data: {
     champion: null,
     loading: true,
     tierColor: '#888',
     skillKeys: ['Q', 'W', 'E', 'R'],
+    isFavorite: false,
   },
 
   onLoad(options) {
@@ -27,14 +30,21 @@ Page({
     this.setData({ loading: true });
     try {
       const data = await api.getChampionDetail(key);
+      const isFavorite = this.checkFavorite(data.key || key);
+
       this.setData({
         champion: data,
         loading: false,
         tierColor: TIER_COLORS[data.tier] || '#888',
+        isFavorite,
       });
 
-      // 更新导航栏标题
       wx.setNavigationBarTitle({ title: data.name });
+
+      // 添加导航栏收藏按钮
+      wx.setMenuAction({
+        menuList: [{ text: isFavorite ? '取消收藏' : '收藏' }],
+      });
     } catch (e) {
       console.error('Load champion failed:', e);
       this.setData({ loading: false });
@@ -42,12 +52,44 @@ Page({
     }
   },
 
+  checkFavorite(key) {
+    try {
+      const favs = wx.getStorageSync(FAVORITES_KEY);
+      const list = favs ? JSON.parse(favs) : [];
+      return list.includes(String(key));
+    } catch (e) {
+      return false;
+    }
+  },
+
+  toggleFavorite() {
+    const { champion, isFavorite } = this.data;
+    if (!champion) return;
+
+    const key = String(champion.key);
+    try {
+      let favs = wx.getStorageSync(FAVORITES_KEY);
+      let list = favs ? JSON.parse(favs) : [];
+
+      if (isFavorite) {
+        list = list.filter(k => k !== key);
+        wx.showToast({ title: '已取消收藏', icon: 'none' });
+      } else {
+        list.push(key);
+        wx.showToast({ title: '已收藏', icon: 'success' });
+      }
+
+      wx.setStorageSync(FAVORITES_KEY, JSON.stringify(list));
+      this.setData({ isFavorite: !isFavorite });
+    } catch (e) {
+      console.error('Toggle favorite failed:', e);
+    }
+  },
+
   goAugment() {
     const key = this.data.champion?.key;
     if (key) {
-      wx.navigateTo({
-        url: `/pages/augment/augment?key=${key}`,
-      });
+      wx.navigateTo({ url: `/pages/augment/augment?key=${key}` });
     }
   },
 

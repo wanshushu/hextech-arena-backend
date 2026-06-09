@@ -1,24 +1,24 @@
 <view class="container">
   <!-- 头部 -->
   <view class="header">
-    <view class="title">🎯 海克斯大乱斗</view>
+    <view class="header-top">
+      <view class="title">🎯 海克斯大乱斗</view>
+      <view class="header-actions">
+        <view class="action-btn" bindtap="goCompare">⚖️</view>
+      </view>
+    </view>
     <view class="subtitle" wx:if="{{updateTime}}">更新: {{updateTime}}</view>
   </view>
 
   <!-- Tab 栏 -->
   <scroll-view class="tabs" scroll-x enable-flex>
     <view
-      class="tab {{currentTier === 'all' ? 'active' : ''}}"
-      bindtap="onTabTap"
-      data-tier="all"
-    >全部</view>
-    <view
       wx:for="{{tiers}}"
       wx:key="name"
       class="tab {{currentTier === item.name ? 'active tier-bg-' + item.name : ''}}"
       bindtap="onTabTap"
       data-tier="{{item.name}}"
-    >{{item.name}}</view>
+    >{{item.label || item.name}}</view>
   </scroll-view>
 
   <!-- 搜索框 -->
@@ -42,7 +42,8 @@
 
   <!-- 空状态 -->
   <view class="empty" wx:if="{{!loading && filteredChampions.length === 0}}">
-    没有找到英雄
+    <text wx:if="{{currentTier === 'fav'}}">还没有收藏英雄</text>
+    <text wx:else>没有找到英雄</text>
   </view>
 
   <!-- 加载中 -->

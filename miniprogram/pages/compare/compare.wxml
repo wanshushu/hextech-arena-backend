@@ -1,0 +1,138 @@
+<view class="container">
+  <view class="header">
+    <view class="title">⚖️ 英雄对比</view>
+    <view class="subtitle">对比两个英雄的数据，帮助选择</view>
+  </view>
+
+  <!-- 选择英雄 -->
+  <view class="card select-card">
+    <view class="select-slot {{champ1 ? 'filled' : ''}}" bindtap="onSelectChamp" data-slot="1">
+      <image class="slot-icon" src="{{champ1.image_url}}" mode="aspectFill" wx:if="{{champ1}}" />
+      <view class="slot-placeholder" wx:else>
+        <text class="slot-plus">+</text>
+        <text class="slot-text">选择英雄</text>
+      </view>
+      <text class="slot-name">{{champ1.name || ''}}</text>
+    </view>
+
+    <text class="vs-text">VS</text>
+
+    <view class="select-slot {{champ2 ? 'filled' : ''}}" bindtap="onSelectChamp" data-slot="2">
+      <image class="slot-icon" src="{{champ2.image_url}}" mode="aspectFill" wx:if="{{champ2}}" />
+      <view class="slot-placeholder" wx:else>
+        <text class="slot-plus">+</text>
+        <text class="slot-text">选择英雄</text>
+      </view>
+      <text class="slot-name">{{champ2.name || ''}}</text>
+    </view>
+  </view>
+
+  <!-- 对比结果 -->
+  <view wx:if="{{champ1 && champ2}}">
+    <!-- 基础数据对比 -->
+    <view class="card">
+      <view class="section-title">📊 数据对比</view>
+      <view class="compare-table">
+        <view class="compare-row">
+          <view class="compare-cell left">
+            <text class="compare-value" style="color: {{champ1._wrColor}}">{{champ1.winrate || '-'}}</text>
+          </view>
+          <view class="compare-cell center">
+            <text class="compare-label">胜率</text>
+          </view>
+          <view class="compare-cell right">
+            <text class="compare-value" style="color: {{champ2._wrColor}}">{{champ2.winrate || '-'}}</text>
+          </view>
+        </view>
+
+        <view class="compare-row">
+          <view class="compare-cell left">
+            <view class="tier-tag tier-{{champ1.tier}}">{{champ1.tier || '-'}}</view>
+          </view>
+          <view class="compare-cell center">
+            <text class="compare-label">梯队</text>
+          </view>
+          <view class="compare-cell right">
+            <view class="tier-tag tier-{{champ2.tier}}">{{champ2.tier || '-'}}</view>
+          </view>
+        </view>
+
+        <view class="compare-row">
+          <view class="compare-cell left">
+            <text class="compare-value">{{champ1.pickrate || '-'}}</text>
+          </view>
+          <view class="compare-cell center">
+            <text class="compare-label">选取率</text>
+          </view>
+          <view class="compare-cell right">
+            <text class="compare-value">{{champ2.pickrate || '-'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 标签对比 -->
+    <view class="card">
+      <view class="section-title">🏷 定位</view>
+      <view class="tag-compare">
+        <view class="tag-side">
+          <text class="tag" wx:for="{{champ1.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="tag-side">
+          <text class="tag" wx:for="{{champ2.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 海克斯对比 -->
+    <view class="card">
+      <view class="section-title">🔮 TOP 海克斯</view>
+      <view class="augment-compare">
+        <view class="augment-side">
+          <view class="augment-item" wx:for="{{champ1.top_augments}}" wx:key="name" wx:if="{{index < 3}}">
+            <text class="augment-name">{{item.name}}</text>
+            <text class="augment-wr">{{item.winrate}}</text>
+          </view>
+        </view>
+        <view class="augment-side">
+          <view class="augment-item" wx:for="{{champ2.top_augments}}" wx:key="name" wx:if="{{index < 3}}">
+            <text class="augment-name">{{item.name}}</text>
+            <text class="augment-wr">{{item.winrate}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 结论 -->
+    <view class="card conclusion-card">
+      <text class="conclusion-text">{{conclusion}}</text>
+    </view>
+  </view>
+
+  <!-- 英雄选择弹窗 -->
+  <view class="picker-mask" wx:if="{{showPicker}}" bindtap="onClosePicker">
+    <view class="picker-panel" catchtap="">
+      <view class="picker-header">
+        <text class="picker-title">选择英雄</text>
+        <text class="picker-close" bindtap="onClosePicker">关闭</text>
+      </view>
+      <view class="picker-search">
+        <input placeholder="搜索英雄..." bindinput="onPickerSearch" value="{{pickerSearch}}" />
+      </view>
+      <scroll-view class="picker-list" scroll-y>
+        <view
+          class="picker-item"
+          wx:for="{{pickerList}}"
+          wx:key="key"
+          bindtap="onPickChamp"
+          data-key="{{item.key}}"
+          data-name="{{item.name}}"
+          data-image="{{item.image_url}}"
+        >
+          <image class="picker-icon" src="{{item.image_url}}" mode="aspectFill" />
+          <text class="picker-name">{{item.name}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

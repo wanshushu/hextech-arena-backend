@@ -6,12 +6,36 @@
 .header {
   padding: 24rpx 24rpx 16rpx;
 }
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 .title {
   font-size: 36rpx;
   font-weight: 700;
   background: linear-gradient(90deg, var(--accent), var(--recommend));
   -webkit-background-clip: text;
   color: transparent;
+}
+.header-actions {
+  display: flex;
+  gap: 12rpx;
+}
+.action-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+.action-btn:active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--accent);
 }
 .subtitle {
   font-size: 22rpx;
