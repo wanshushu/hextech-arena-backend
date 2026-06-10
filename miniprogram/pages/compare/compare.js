@@ -49,6 +49,9 @@ Page({
     const { key, name, image } = e.currentTarget.dataset;
     const slot = this.data.pickerSlot;
 
+    // 立即关闭面板，防止重复触发
+    this.setData({ showPicker: false });
+
     try {
       const data = await api.getChampionDetail(key);
       const champ = {
@@ -58,13 +61,13 @@ Page({
       };
 
       if (slot === 1) {
-        this.setData({ champ1: champ, showPicker: false });
+        this.setData({ champ1: champ });
       } else {
-        this.setData({ champ2: champ, showPicker: false });
+        this.setData({ champ2: champ });
       }
 
       // 两个都有了就生成结论
-      if (this.data.champ1 && this.data.champ2) {
+      if ((slot === 1 && this.data.champ2) || (slot === 2 && this.data.champ1)) {
         this.generateConclusion();
       }
     } catch (e) {
