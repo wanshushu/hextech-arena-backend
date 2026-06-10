@@ -38,6 +38,18 @@
     </view>
   </view>
 
+  <!-- 速查模式入口 -->
+  <view class="quick-entry card" bindtap="goQuick">
+    <view class="quick-entry-left">
+      <text class="quick-entry-icon">⚡</text>
+      <view>
+        <view class="quick-entry-title">速查模式</view>
+        <view class="quick-entry-desc">大字号护眼，游戏中快速瞄一眼</view>
+      </view>
+    </view>
+    <text class="quick-entry-arrow">›</text>
+  </view>
+
   <!-- 海克斯推荐入口 -->
   <view class="augment-entry card" bindtap="goAugment">
     <view class="augment-entry-left">

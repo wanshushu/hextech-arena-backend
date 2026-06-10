@@ -1,0 +1,78 @@
+<view class="container">
+  <!-- 英雄信息（大字） -->
+  <view class="hero-banner" wx:if="{{champion}}">
+    <image class="hero-bg" src="{{champion.image_splash || champion.image_url}}" mode="aspectFill" />
+    <view class="hero-content">
+      <view class="hero-name">{{champion.name}}</view>
+      <view class="hero-meta">
+        <view class="tier-tag big tier-{{champion.tier}}">{{champion.tier}}</view>
+        <text class="hero-wr">{{champion.winrate}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 海克斯推荐（最关键的，放最上面） -->
+  <view class="section-card" wx:if="{{augments.length > 0}}">
+    <view class="section-header">
+      <text class="section-icon">🔮</text>
+      <text class="section-label">海克斯推荐</text>
+    </view>
+    <view class="augment-list">
+      <view class="augment-row" wx:for="{{augments}}" wx:key="name">
+        <view class="augment-rank">#{{index + 1}}</view>
+        <view class="augment-name">{{item.name}}</view>
+        <view class="augment-wr">{{item.winrate}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 核心出装（3件，大字） -->
+  <view class="section-card" wx:if="{{coreItems.length > 0}}">
+    <view class="section-header">
+      <text class="section-icon">⚔️</text>
+      <text class="section-label">核心出装</text>
+    </view>
+    <view class="items-big">
+      <view class="item-big" wx:for="{{coreItems}}" wx:key="*this">
+        <text class="item-num">{{index + 1}}</text>
+        <text class="item-name">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 出门装 -->
+  <view class="section-card" wx:if="{{startItems.length > 0}}">
+    <view class="section-header">
+      <text class="section-icon">🏠</text>
+      <text class="section-label">出门装</text>
+    </view>
+    <view class="items-compact">
+      <text class="item-pill" wx:for="{{startItems}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 情境装备（折叠） -->
+  <view class="section-card" wx:if="{{situItems.length > 0}}" bindtap="toggleSitu">
+    <view class="section-header">
+      <text class="section-icon">🛡</text>
+      <text class="section-label">情境装备</text>
+      <text class="section-arrow">{{showSitu ? '▲' : '▼'}}</text>
+    </view>
+    <view class="items-compact" wx:if="{{showSitu}}">
+      <text class="item-pill" wx:for="{{situItems}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 快速换英雄 -->
+  <view class="switch-bar">
+    <input
+      class="switch-input"
+      placeholder="换英雄..."
+      placeholder-style="color: #666"
+      bindinput="onSwitchInput"
+      value="{{switchText}}"
+      confirm-type="search"
+      bindconfirm="onSwitchConfirm"
+    />
+  </view>
+</view>

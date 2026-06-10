@@ -165,6 +165,39 @@
   font-size: 24rpx;
 }
 
+/* 速查模式入口 */
+.quick-entry {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
+  border-color: #00ff88;
+}
+.quick-entry:active { opacity: 0.8; }
+.quick-entry-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.quick-entry-icon {
+  font-size: 40rpx;
+}
+.quick-entry-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #00ff88;
+}
+.quick-entry-desc {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  margin-top: 4rpx;
+}
+.quick-entry-arrow {
+  font-size: 36rpx;
+  color: var(--text-secondary);
+}
+
 /* 海克斯推荐入口 */
 .augment-entry {
   display: flex;

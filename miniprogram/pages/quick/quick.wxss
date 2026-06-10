@@ -1,0 +1,173 @@
+/* 速查模式 - 大字号，护眼暗色，快速瞄一眼 */
+page {
+  background: #000;
+}
+
+/* 英雄横幅 */
+.hero-banner {
+  position: relative;
+  height: 240rpx;
+  overflow: hidden;
+}
+.hero-bg {
+  width: 100%;
+  height: 100%;
+  filter: brightness(0.4);
+}
+.hero-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+}
+.hero-name {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #fff;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+.tier-tag.big {
+  font-size: 32rpx;
+  padding: 6rpx 20rpx;
+}
+.hero-wr {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #00ff88;
+}
+
+/* 区块卡片 */
+.section-card {
+  margin: 16rpx 24rpx;
+  padding: 24rpx;
+  background: #111;
+  border-radius: 16rpx;
+  border: 1rpx solid #222;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+.section-icon {
+  font-size: 32rpx;
+}
+.section-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #00f0ff;
+  flex: 1;
+}
+.section-arrow {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 海克斯列表 */
+.augment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.augment-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #0a0a0a;
+  border-radius: 12rpx;
+}
+.augment-rank {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #00f0ff;
+  width: 60rpx;
+  text-align: center;
+}
+.augment-name {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+}
+.augment-wr {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #00ff88;
+}
+
+/* 核心出装（大字） */
+.items-big {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.item-big {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  background: #0a0a0a;
+  border-radius: 12rpx;
+}
+.item-num {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #00f0ff;
+  color: #000;
+  font-size: 28rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* 紧凑标签 */
+.items-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.item-pill {
+  background: #0a0a0a;
+  border: 1rpx solid #333;
+  border-radius: 8rpx;
+  padding: 10rpx 20rpx;
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+/* 底部切换栏 */
+.switch-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: #111;
+  border-top: 1rpx solid #222;
+}
+.switch-input {
+  padding: 20rpx 28rpx;
+  border-radius: 16rpx;
+  background: #0a0a0a;
+  border: 1rpx solid #333;
+  color: #fff;
+  font-size: 32rpx;
+  text-align: center;
+}

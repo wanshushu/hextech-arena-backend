@@ -93,6 +93,13 @@ Page({
     }
   },
 
+  goQuick() {
+    const key = this.data.champion?.key;
+    if (key) {
+      wx.navigateTo({ url: `/pages/quick/quick?key=${key}` });
+    }
+  },
+
   onShareAppMessage() {
     const c = this.data.champion;
     return {
